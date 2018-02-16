@@ -19,13 +19,16 @@ Work in progress.
 - The video had dimensions 640 x 480 at 30 fps.
 - It took 14 minutes to scan the store.
 
-Next steps:
-- Convert video to images.
-  - Choose a good sampling rate
-  - Consider minimizing the overlap of images to reduce the cost of labeling
-  - Consider bounding box software options before choosing how to convert the video to images
+Plan:
 - Label data
-  - Find a bounding box labeling helper program
+  - Choose a data format
+    - Find and test a pipeline. Use its data format
+  - Choose a bounding box hand-labeling program compatible with the chosen format
+  - Convert videos to images
+    - Consider minimizing the overlap of images to reduce the cost of labeling
+      - Choose a good sampling rate
+        - Choose fastest sampling rate, get a sense of the overlap, and choose a slower sampling rate
+        - Consider using an algorithm that detects image overlap, like those used in panorama creators
   - Consider which kind of voids to label for the prototype:
     - Complete void
     - Void with product behind it
@@ -33,6 +36,7 @@ Next steps:
 - Create train, validation, and test sets
   - Consider splitting by aisle
   - Consider splitting by store
+    - If so, collect data from two more stores
 - Resize data for model input
   - Consider downsampling or cropping
 - Train, tune HPs, test
@@ -49,4 +53,4 @@ Void categorization:
 
 Void localization:
 - Input: Image of shelf
-- Output: xyz-coordinates of voids
+- Output: xyz-coordinates of voids, with respect to a 3D store map
