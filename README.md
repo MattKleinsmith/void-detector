@@ -28,11 +28,14 @@ Plan:
   - [x] Choose a bounding box hand-labeling program compatible with the chosen format
     - Labeler chosen: [YOLO v2 Bounding Box Tool](https://github.com/Cartucho/yolo-boundingbox-labeler-GUI)
     - [My fork](https://github.com/MattKleinsmith/yolo-boundingbox-labeler-GUI/tree/patch-1-1). Changed output to match the torchcv format. Made bounding box colors consistent between labeling sessions
-  - [ ] Convert videos to images
-    - [ ] Consider minimizing the overlap of images to reduce the cost of labeling
-      - [ ] Choose a good sampling rate
-        - [ ] Choose fastest sampling rate, get a sense of the overlap, and choose a slower sampling rate
-        - [ ] Consider using an algorithm that detects image overlap, like those used in panorama creators
+  - [x] Convert videos to images
+    - [x] Consider minimizing the overlap of images to reduce the cost of labeling
+      - [x] Choose a good sampling rate
+        - [x] Choose fastest sampling rate, get a sense of the overlap, and choose a slower sampling rate
+        - [x] Consider using an algorithm that detects image overlap, like those used in panorama creators
+          - Unneeded. Manual inspection worked.
+        - Sampling rate chosen: 1 fps.
+        - I preserved the frame IDs with respect to 30 fps to ease the use of object detection later.
   - [ ] Consider which kind of voids to label for the prototype:
     - Complete void
     - Void with product behind it
@@ -58,3 +61,6 @@ Void categorization:
 Void localization:
 - Input: Image of shelf
 - Output: xyz-coordinates of voids, with respect to a 3D store map
+
+Efficient hand-labeling:
+- Label a void in one frame, then use an object tracker to label the void for the rest of the frames. This would multiply the number of labels by about 30, assuming a 30 FPS camera and an on-screen-time of one second.
