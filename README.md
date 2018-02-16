@@ -20,26 +20,28 @@ Work in progress.
 - It took 14 minutes to scan the store.
 
 Plan:
-- Label data
-  - Choose a data format
-    - Find and test a pipeline. Use its data format
-  - Choose a bounding box hand-labeling program compatible with the chosen format
-  - Convert videos to images
-    - Consider minimizing the overlap of images to reduce the cost of labeling
-      - Choose a good sampling rate
-        - Choose fastest sampling rate, get a sense of the overlap, and choose a slower sampling rate
-        - Consider using an algorithm that detects image overlap, like those used in panorama creators
-  - Consider which kind of voids to label for the prototype:
+- [ ] Label data
+  - [x] Choose a data format
+    - [x] Find and test a pipeline. Use its data format
+      - Pipeline chosen: [torchcv](https://github.com/kuangliu/torchcv/)
+      - Data format: lines in train.txt: name.jpg xmin ymin xmax ymax label xmin ymin xmax ymax label ...
+  - [ ] Choose a bounding box hand-labeling program compatible with the chosen format
+  - [ ] Convert videos to images
+    - [ ] Consider minimizing the overlap of images to reduce the cost of labeling
+      - [ ] Choose a good sampling rate
+        - [ ] Choose fastest sampling rate, get a sense of the overlap, and choose a slower sampling rate
+        - [ ] Consider using an algorithm that detects image overlap, like those used in panorama creators
+  - [ ] Consider which kind of voids to label for the prototype:
     - Complete void
     - Void with product behind it
     - Void with product in front of it
-- Create train, validation, and test sets
+- [ ] Create train, validation, and test sets
   - Consider splitting by aisle
   - Consider splitting by store
     - If so, collect data from two more stores
-- Resize data for model input
+- [ ] Resize data for model input
   - Consider downsampling or cropping
-- Train, tune HPs, test
+- [ ] Train, tune HPs, test
 
 # Ambitions
 
