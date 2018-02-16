@@ -25,7 +25,9 @@ Plan:
     - [x] Find and test a pipeline. Use its data format
       - Pipeline chosen: [torchcv](https://github.com/kuangliu/torchcv/)
       - Data format: lines in train.txt: name.jpg xmin ymin xmax ymax label xmin ymin xmax ymax label ...
-  - [ ] Choose a bounding box hand-labeling program compatible with the chosen format
+  - [x] Choose a bounding box hand-labeling program compatible with the chosen format
+    - Labeler chosen: [YOLO v2 Bounding Box Tool](https://github.com/Cartucho/yolo-boundingbox-labeler-GUI)
+    - [My fork](https://github.com/MattKleinsmith/yolo-boundingbox-labeler-GUI/tree/patch-1-1). Changed output to match the torchcv format. Made bounding box colors consistent between labeling sessions
   - [ ] Convert videos to images
     - [ ] Consider minimizing the overlap of images to reduce the cost of labeling
       - [ ] Choose a good sampling rate
