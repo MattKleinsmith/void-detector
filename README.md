@@ -27,7 +27,16 @@ Plan:
       - Data format: lines in train.txt: name.jpg xmin ymin xmax ymax label xmin ymin xmax ymax label ...
   - [x] Choose a bounding box hand-labeling program compatible with the chosen format
     - Labeler chosen: [YOLO v2 Bounding Box Tool](https://github.com/Cartucho/yolo-boundingbox-labeler-GUI)
-    - [My fork](https://github.com/MattKleinsmith/yolo-boundingbox-labeler-GUI/tree/patch-1-1). Changed output to match the torchcv format. Made bounding box colors consistent between labeling sessions
+      - <img src="labeler.png" width="40%">
+    - [My fork](https://github.com/MattKleinsmith/yolo-boundingbox-labeler-GUI/tree/patch-2)
+        - [x] Change output to match the torchcv format
+        - [x] Make bounding box colors consistent between labeling sessions
+        - [x] Make box form upon mouse-up, instead of requiring two clicks
+        - [x] Add filename to help screen to make debugging easier
+        - [x] Add the option to display the images in order
+        - [ ] Start session at first unlabeled image
+        - [ ] Allow the user to start with the bottom right corner
+        - [ ] Allow the user to adjust the line width
   - [x] Convert videos to images
     - [x] Consider minimizing the overlap of images to reduce the cost of labeling
       - [x] Choose a good sampling rate
@@ -36,10 +45,10 @@ Plan:
           - Unneeded. Manual inspection worked.
         - Sampling rate chosen: 1 fps.
         - I preserved the frame IDs with respect to 30 fps to ease the use of object detection later.
-  - [ ] Consider which kind of voids to label for the prototype:
-    - Complete void
-    - Void with product behind it
-    - Void with product in front of it
+  - [x] Consider which kind of voids to label for the prototype:
+    - [Yes] Complete void
+    - [Yes] Void with product behind it
+    - [Not yet] Void with product in front of it
 - [ ] Create train, validation, and test sets
   - Consider splitting by aisle
   - Consider splitting by store
