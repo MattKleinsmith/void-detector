@@ -14,14 +14,18 @@ https://github.com/MattKleinsmith/yolo-boundingbox-labeler-GUI
 """
 
 from glob import glob
+import argparse
 
-LABELER_ADDED_ONE_TO_EACH_COORD = True
 
-# Run from bbox_text directory
+parser = argparse.ArgumentParser()
+parser.add_argument('--out', default='labels', type=str, help="Base name of output. Will result in <name>.txt.")
+parser.add_argument('--add_one', action='store_true', help="Add one to each coordinate.")
+args = parser.parse_args()
+
+print("Instructions: Run this script from the bbox_text directory.")
 fnames = glob("*.txt")
 fnames.sort()
-
-with open("train.txt", 'a') as trn_file:
+with open(args.out + '.txt', 'a') as trn_file:
     for fname in fnames:
         with open(fname) as f:
             content = f.readlines()
@@ -29,10 +33,10 @@ with open("train.txt", 'a') as trn_file:
         for line in content:
             values_str = line.split()
             coords_str, class_index = values_str[:-1], values_str[-1]
-            if LABELER_ADDED_ONE_TO_EACH_COORD:
-                coords = list(map(int, coords_str))
-            else:
+            if args.add_one:
                 coords = list(map(lambda x: x+1, map(int, coords_str)))
+            else:
+                coords = list(map(int, coords_str))
             box = coords + [class_index]
             boxes += box
         fname = fname.split('.txt')[0] + ".jpg"

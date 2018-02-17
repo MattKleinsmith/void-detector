@@ -97,14 +97,18 @@ Work in progress.
             - GPU: Titan X Pascal
     - Dataset
         - 329 images with ground truth voids
-        - 1062 ground truth voids
-        - Images from one set of sides (black side)
+        - 1062 ground truth voids (void-img ratio: 3.22)
+        - Images from one set of sides (black side of route diagram)
         - I didn't include images without voids
             - I'll handle this case the next time I train
 - [ ] Inspect results
     - [x] Visually
     - [ ] Quantitatively
-        - [ ] Label data for the validation set
+        - [x] Label data for the validation set
+            - 80 images with ground truth voids
+            - 385 ground truth voids (void-img ratio: 4.81)
+            - Images from one set of sides (blue side of route diagram)
+        - [ ] Calculate mean IoU
 - [ ] Report results
     - [ ] Visually
     - [ ] Quantitatively

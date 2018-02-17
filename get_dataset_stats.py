@@ -1,9 +1,13 @@
 import os.path as osp
+import argparse
 
-video_id = '20180215_185312'
-# video_id = '20180215_190227'
-data_dir = '/data/voids'
-ground_truth_txt = osp.join(data_dir, video_id + ".txt")
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--video_id', default='20180215_190227', type=str, help="Base name of output. Will result in <name>.txt.")
+args = parser.parse_args()
+
+data_dir = '../../data/voids'
+ground_truth_txt = osp.join(data_dir, args.video_id + ".txt")
 with open(ground_truth_txt) as f:
     ground_truth_list = f.readlines()
 
