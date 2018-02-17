@@ -53,7 +53,7 @@ Work in progress.
           - Unneeded. Manual inspection worked.
         - Sampling rate chosen: 1 fps.
         - I preserved the frame IDs with respect to 30 fps to ease the use of object detection later.
-  - [x] Consider which kind of voids to label for the prototype:
+  - [x] Consider which kinds of voids to label for the prototype:
     - [Yes] Complete void
     - [Yes] Void with product behind it
     - [Not yet] Void with product in front of it
