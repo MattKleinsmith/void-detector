@@ -80,7 +80,16 @@ class ListDataset(data.Dataset):
         labels = self.labels[idx].clone()
 
         if self.transform:
-            img, boxes, labels = self.transform(img, boxes, labels)
+            try:
+                img, boxes, labels = self.transform(img, boxes, labels)
+            except RuntimeError:
+                print(fname)
+                # Last error caught: NAME.jpg was in the list of files but
+                # had no bounding boxes. I must have made a bounding box,
+                # which made the file in the labeler directory, and then
+                # deleted the bounding box, which doesn't delete the file
+                # if it's empty.
+                raise RuntimeError
         return img, boxes, labels
 
     def __len__(self):
