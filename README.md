@@ -4,6 +4,11 @@ Detect voids in grocery store shelves.
 
 Work in progress.
 
+## Table of Contents
+- <a href='#goal'>Goal</a>
+- <a href='#log'>Log</a>
+- <a href='#ambitions'>Ambitions</a>
+
 # Goal
 
 - Input: Image of shelf
@@ -11,16 +16,16 @@ Work in progress.
 
 # Log
 
-2018-02-15: Collect data.
-- I walked down the aisles of my local grocery store while recording the shelves.
-- I used a grocery cart to stable my smartphone's camera and to bring the height of the camera close to the height of Focal Systems' camera.
-- I used the right lane of each aisle and recorded the shelves of the opposite lane.
-- I walked through each aisle twice to record each side of each aisle.
-- The video had dimensions 640 x 480 at 30 fps.
-- It took 14 minutes to scan the store.
+2018-02-15: Collect and label data.
 
-Plan:
-- [x] Label some data
+- [x] Collect images of grocery store shelves
+    - I walked down the aisles of my local grocery store while recording the shelves
+        - I used a grocery cart to stable my smartphone's camera and to bring the height of the camera close to the height of Focal Systems' camera
+        - I used the right lane of each aisle and recorded the shelves of the opposite lane
+        - I walked down each aisle twice to record each side
+    - The video had dimensions 640 x 480 at 30 fps
+    - It took 14 minutes to scan the store
+- [x] Label the voids
   - [x] Choose a data format
     - [x] Find and test a pipeline. Use its data format
       - [x] Get a sense of each detection algorithm, choose one, and choose a pipeline for it
@@ -61,14 +66,14 @@ Plan:
 - [ ] Redefine model as needed
 - [ ] Train, tune HPs, test
 
-2018-02-16: Customize the training pipeline.
+2018-02-16: Make the data, model, and training pipeline compatible.
 - [x] Convert labels to correct format
   - The VOC PASCAL format defines the top-left corner as (1, 1), not (0, 0). I'll need to add one to each coordinate in my labels, and change the labeler program for future labeling.
     - [x] Add one to each coordinate
     - [x] Fix labeler
   - [x] The labeler program, reasonably, stores bounding box information of name.jpg in name.txt, with each bounding box on a separate line. I'll need to convert this to torchcv format, where all the bounding boxes for a single image are on one line.
   - [x] I need to append the video timestamp to label names to avoid name conflicts.
-- [x] Customize model
+- [x] Customize model, and modify training pipeline accordingly
     - [My fork of torchcv](https://github.com/MattKleinsmith/void-torchcv/commit/f812e2a28884d2cfb0f12f3336570b3a71dfb86a):
         - [x] Change the number of classes from 21 to 2
         - [x] Reset the conv layers in the classifiers and locators
