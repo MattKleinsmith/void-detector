@@ -66,18 +66,46 @@ Work in progress.
 - [ ] Redefine model as needed
 - [ ] Train, tune HPs, test
 
-2018-02-16: Make the data, model, and training pipeline compatible.
-- [x] Convert labels to correct format
-  - The VOC PASCAL format defines the top-left corner as (1, 1), not (0, 0). I'll need to add one to each coordinate in my labels, and change the labeler program for future labeling.
-    - [x] Add one to each coordinate
-    - [x] Fix labeler
-  - [x] The labeler program, reasonably, stores bounding box information of name.jpg in name.txt, with each bounding box on a separate line. I'll need to convert this to torchcv format, where all the bounding boxes for a single image are on one line.
-  - [x] I need to append the video timestamp to label names to avoid name conflicts.
-- [x] Customize model, and modify training pipeline accordingly
-    - [My fork of torchcv](https://github.com/MattKleinsmith/void-torchcv/commit/f812e2a28884d2cfb0f12f3336570b3a71dfb86a):
-        - [x] Change the number of classes from 21 to 2
-        - [x] Reset the conv layers in the classifiers and locators
-        - Leave the base model weights alone
+2018-02-16: Train model.
+- [x] Make the data, model, and training pipeline compatible
+    - [x] Convert labels to correct format
+      - The VOC PASCAL format defines the top-left corner as (1, 1), not (0, 0). I'll need to add one to each coordinate in my labels, and change the labeler program for future labeling.
+        - [x] Add one to each coordinate
+        - [x] Fix labeler
+      - [x] The labeler program, reasonably, stores bounding box information of name.jpg in name.txt, with each bounding box on a separate line. I'll need to convert this to torchcv format, where all the bounding boxes for a single image are on one line.
+      - [x] I need to append the video timestamp to label names to avoid name conflicts.
+    - [x] Customize model, and modify training pipeline accordingly
+        - [My fork of torchcv](https://github.com/MattKleinsmith/void-torchcv):
+            - [x] Change the number of classes from 21 to 2
+            - [x] Reset the conv layers in the classifiers and locators
+            - Leave the base model weights alone
+- [x] Train model
+    - Configuration:
+        - Epochs: 200
+        - Image size: 512x512
+            - Resized with PIL, nearest neighbor
+        - Batch size: 16
+        - Learning rate: 1e-4
+        - Loss: [SSD loss](https://github.com/kuangliu/torchcv/blob/master/torchcv/loss/ssd_loss.py)
+        - Optimizer: SGD
+            - Momentum: 0.9
+            - Weight decay: 1e-4
+        - Duration: 1 hour, 10 minutes
+            - GPU: Titan X Pascal
+    - Didn't train on images without voids
+        - I'll handle this case the next time I train
+- [ ] Inspect results
+    - [x] Visually
+    - [ ] Quantitatively
+- [ ] Report results
+    - [ ] Visually
+    - [ ] Quantitatively
+- [ ] Improve torchcv's logging
+    - [ ] Add ETA and duration
+    - [ ] Remove unneeded messages
+    - [ ] Make checkpoint filenames more descriptive
+        - [ ] Add git hash
+        - [ ] Add training configuration description
 
 # Ambitions
 
