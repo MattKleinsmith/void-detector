@@ -68,7 +68,11 @@ Plan:
     - [x] Fix labeler
   - [x] The labeler program, reasonably, stores bounding box information of name.jpg in name.txt, with each bounding box on a separate line. I'll need to convert this to torchcv format, where all the bounding boxes for a single image are on one line.
   - [x] I need to append the video timestamp to label names to avoid name conflicts.
-- [ ] Customize model
+- [x] Customize model
+    - [My fork of torchcv](https://github.com/MattKleinsmith/void-torchcv/commit/f812e2a28884d2cfb0f12f3336570b3a71dfb86a):
+        - [x] Change the number of classes from 21 to 2
+        - [x] Reset the conv layers in the classifiers and locators
+        - Leave the base model weights alone
 
 # Ambitions
 
