@@ -7,6 +7,8 @@ Work in progress.
 ## Table of Contents
 - <a href='#goal'>Goal</a>
 - <a href='#log'>Log</a>
+    - <a href='#2018-02-15-collect-and-label-data'>2018-02-15: Collect and label data</a>
+    - <a href='#2018-02-16-train-model'>2018-02-16: Train model</a>
 - <a href='#ambitions'>Ambitions</a>
 
 # Goal
@@ -16,7 +18,7 @@ Work in progress.
 
 # Log
 
-2018-02-15: Collect and label data.
+## 2018-02-15: Collect and label data
 
 - [x] Collect images of grocery store shelves
     - I walked down the aisles of my local grocery store while recording the shelves
@@ -66,7 +68,7 @@ Work in progress.
 - [ ] Redefine model as needed
 - [ ] Train, tune HPs, test
 
-2018-02-16: Train model.
+## 2018-02-16: Train model
 - [x] Make the data, model, and training pipeline compatible
     - [x] Convert labels to correct format
       - The VOC PASCAL format defines the top-left corner as (1, 1), not (0, 0). I'll need to add one to each coordinate in my labels, and change the labeler program for future labeling.
