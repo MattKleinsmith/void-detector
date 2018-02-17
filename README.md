@@ -22,6 +22,7 @@ Work in progress.
 
 - [x] Collect images of grocery store shelves
     - I walked down the aisles of my local grocery store while recording the shelves
+        - <img src="grocery_store_route.png" width="50%">
         - I used a grocery cart to stable my smartphone's camera and to bring the height of the camera close to the height of Focal Systems' camera
         - I used the right lane of each aisle and recorded the shelves of the opposite lane
         - I walked down each aisle twice to record each side
@@ -94,11 +95,16 @@ Work in progress.
             - Weight decay: 1e-4
         - Duration: 1 hour, 10 minutes
             - GPU: Titan X Pascal
-    - Didn't train on images without voids
-        - I'll handle this case the next time I train
+    - Dataset
+        - 329 images with ground truth voids
+        - 1062 ground truth voids
+        - Images from one set of sides (black side)
+        - I didn't include images without voids
+            - I'll handle this case the next time I train
 - [ ] Inspect results
     - [x] Visually
     - [ ] Quantitatively
+        - [ ] Label data for the validation set
 - [ ] Report results
     - [ ] Visually
     - [ ] Quantitatively
