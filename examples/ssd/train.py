@@ -3,6 +3,7 @@ from __future__ import print_function
 import os
 import random
 import argparse
+from time import time
 
 import torch
 import torch.optim as optim
@@ -26,6 +27,7 @@ parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
 parser.add_argument('--resume', '-r', action='store_true', help='resume from checkpoint')  # noqa
 parser.add_argument('--model', default='./examples/ssd/model/params.pth', type=str, help='initialized model path')  # noqa
 parser.add_argument('--checkpoint', default='./examples/ssd/checkpoint/ckpt.pth', type=str, help='checkpoint path')  # noqa
+# TODO: Turn off DataParallel so GPU selection works
 parser.add_argument('--gpu', default='1', type=int, help='GPU ID (nvidia-smi)')  # noqa
 args = parser.parse_args()
 
@@ -163,6 +165,8 @@ def test(epoch):
         best_loss = test_loss
 
 
+start = time()
 for epoch in range(start_epoch, start_epoch+NUM_EPOCHS):
     train(epoch)
     test(epoch)
+print("Minutes elapsed:", (time() - start)/60)

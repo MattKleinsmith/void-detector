@@ -54,11 +54,10 @@ def test():
 
 class FPNSSD512_2(FPNSSD512):
 
-    def __init__(self):
+    def __init__(self, weights_path='examples/ssd/checkpoint/fpnssd512_20_trained.pth'):
         super().__init__(num_classes=21)
         # https://drive.google.com/open?id=1yy_kUnm_hZR3uk9yLcaQSMwxVn7wApTU
         # TODO: Use https://github.com/wkentaro/gdown
-        weights_path = 'examples/ssd/checkpoint/fpnssd512_20_trained.pth'
         self.load_state_dict(torch.load(weights_path))
         self.num_classes = 2  # PASCAL VOC is 21
         self.loc_layers = nn.ModuleList()

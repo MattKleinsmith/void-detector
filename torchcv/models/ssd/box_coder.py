@@ -124,7 +124,10 @@ class SSDBoxCoder:
             labels.append(torch.LongTensor(len(box[keep])).fill_(i))
             scores.append(score[keep])
 
-        boxes = torch.cat(boxes, 0)
+        try:
+            boxes = torch.cat(boxes, 0)
+        except RuntimeError:
+            return [], [], []
         labels = torch.cat(labels, 0)
         scores = torch.cat(scores, 0)
         return boxes, labels, scores
