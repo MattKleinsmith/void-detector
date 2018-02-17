@@ -62,11 +62,11 @@ Plan:
 - [ ] Train, tune HPs, test
 
 2018-02-16: Customize the training pipeline.
-- [ ] Convert labels to correct format
+- [x] Convert labels to correct format
   - The VOC PASCAL format defines the top-left corner as (1, 1), not (0, 0). I'll need to add one to each coordinate in my labels, and change the labeler program for future labeling.
     - [x] Add one to each coordinate
     - [x] Fix labeler
-  - [ ] The labeler program, reasonably, stores bounding box information of name.jpg in name.txt, with each bounding box on a separate line. I'll need to convert this to torchcv format, where all the bounding boxes for a single image are on one line.
+  - [x] The labeler program, reasonably, stores bounding box information of name.jpg in name.txt, with each bounding box on a separate line. I'll need to convert this to torchcv format, where all the bounding boxes for a single image are on one line.
   - [x] I need to append the video timestamp to label names to avoid name conflicts.
 - [ ] Customize model
 
