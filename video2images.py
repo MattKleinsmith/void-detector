@@ -6,8 +6,8 @@ cp 20180215_185312.mp4 /media/mwk/3TB/voids/
 cp 20180215_190227.mp4 /media/mwk/3TB/voids/
 
 # Extract frames at near-original quality
-ffmpeg -i 20180215_185312.mp4 -q:v 2 20180215_185312/%06d.jpg
-ffmpeg -i 20180215_190227.mp4 -q:v 2 20180215_190227/%06d.jpg
+ffmpeg -i 20180215_185312.mp4 -q:v 2 20180215_185312/20180215_185312_%06d.jpg
+ffmpeg -i 20180215_190227.mp4 -q:v 2 20180215_190227/20180215_190227_%06d.jpg
 
 # Back up frames
 cp -r 20180215_185312 /media/mwk/3TB/voids/
@@ -35,13 +35,15 @@ from glob import glob
 import os
 
 fnames = glob('*')
-ids = [int(f[:-4]) for f in fnames]
+prefix = '_'.join(fnames[0].split('_')[:2])
+
+ids = [int(f.split('_')[-1][:-4]) for f in fnames]
 one_fps = [i for i in ids if i % 30 == 0]
 
 print("num frames:", len(fnames))
 print("num extracted frames:", len(one_fps))
 print("first ten IDs:", sorted(one_fps)[:10])
 
-to_remove = ['%06d.jpg' % i for i in ids if i not in one_fps]
+to_remove = [prefix + '_%06d.jpg' % i for i in ids if i not in one_fps]
 for i in to_remove:
     os.remove(i)

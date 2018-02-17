@@ -20,9 +20,12 @@ Work in progress.
 - It took 14 minutes to scan the store.
 
 Plan:
-- [ ] Label data
+- [x] Label some data
   - [x] Choose a data format
     - [x] Find and test a pipeline. Use its data format
+      - [x] Get a sense of each detection algorithm, choose one, and choose a pipeline for it
+        - Detection algorithms: HOG, R-CNN, SPP-net, Fast R-CNN, Faster R-CNN, YOLO, and SSD
+      - Initial detection algorithm chosen: SSD: FPNSSD512
       - Pipeline chosen: [torchcv](https://github.com/kuangliu/torchcv/)
       - Data format: lines in train.txt: name.jpg xmin ymin xmax ymax label xmin ymin xmax ymax label ...
   - [x] Choose a bounding box hand-labeling program compatible with the chosen format
@@ -34,7 +37,7 @@ Plan:
         - [x] Make box form upon mouse-up, instead of requiring two clicks
         - [x] Add filename to help screen to make debugging easier
         - [x] Add the option to display the images in order
-        - [ ] Start session at first unlabeled image
+        - [x] Start session at first unlabeled image
         - [ ] Allow the user to start with the bottom right corner
         - [ ] Allow the user to adjust the line width
   - [x] Convert videos to images
@@ -55,13 +58,24 @@ Plan:
     - If so, collect data from two more stores
 - [ ] Resize data for model input
   - Consider downsampling or cropping
+- [ ] Redefine model as needed
 - [ ] Train, tune HPs, test
+
+2018-02-16: Customize the training pipeline.
+- [ ] Convert labels to correct format
+  - The VOC PASCAL format defines the top-left corner as (1, 1), not (0, 0). I'll need to add one to each coordinate in my labels, and change the labeler program for future labeling.
+    - [x] Add one to each coordinate
+    - [x] Fix labeler
+  - [ ] The labeler program, reasonably, stores bounding box information of name.jpg in name.txt, with each bounding box on a separate line. I'll need to convert this to torchcv format, where all the bounding boxes for a single image are on one line.
+  - [x] I need to append the video timestamp to label names to avoid name conflicts.
+- [ ] Customize model
 
 # Ambitions
 
-Real-time processing:
-- Input: Stream of images
-- Output: Stream of bounding boxes
+Real-time processing on embedded device:
+- Same input-output relationship
+- Constraint: 30 fps
+- Constraint: Smartphone
 
 Void categorization:
 - Input: Image of shelf
@@ -70,6 +84,15 @@ Void categorization:
 Void localization:
 - Input: Image of shelf
 - Output: xyz-coordinates of voids, with respect to a 3D store map
+- Visualization: Discrete low-resolution bird's-eye view heatmap
+  - e.g. split store into N sections and color each section by number of voids
+    - e.g. N == num_aisles * num_sections_per_aisle + num_non_aisle_sections
+- Thoughts: The z-coordinate is easiest. The x-y coordinates will require more work.
+    -  [SLAM](https://en.wikipedia.org/wiki/Simultaneous_localization_and_mapping). Can it work with just images?
+    - Non-SLAM options:
+        - GPS. This might not be reliable enough. It would add to hardware costs, too.
+        - Count grocery cart wheel rotations and measure wheel angles. This would add to hardware and maintenance costs
+        - Other non-GPS distance measurers
 
 Efficient hand-labeling:
-- Label a void in one frame, then use an object tracker to label the void for the rest of the frames. This would multiply the number of labels by about 30, assuming a 30 FPS camera and an on-screen-time of one second.
+- Label a void in one frame, then use an object tracker to label the void for the rest of the frames. This would multiply the number of labels by about 30, assuming a 30 FPS camera and a void-on-screen-time of one second.
