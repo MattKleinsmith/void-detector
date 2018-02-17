@@ -36,4 +36,5 @@ with open("train.txt", 'a') as trn_file:
             box = coords + [class_index]
             boxes += box
         fname = fname.split('.txt')[0] + ".jpg"
-        trn_file.write(' '.join([fname] + list(map(str, boxes))) + '\n')
+        if boxes:
+            trn_file.write(' '.join([fname] + list(map(str, boxes))) + '\n')
