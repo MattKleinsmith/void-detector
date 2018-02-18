@@ -2,13 +2,16 @@
 
 Detect voids in grocery store shelves.
 
-Work in progress.
+<img src="20180215_190227_2fps.gif" width="50%">
+
+The above are predictions from the first model trained. The images are from the test set.
 
 ## Table of Contents
 - <a href='#goal'>Goal</a>
 - <a href='#log'>Log</a>
     - <a href='#2018-02-15-collect-and-label-data'>2018-02-15: Collect and label data</a>
     - <a href='#2018-02-16-train-model'>2018-02-16: Train model</a>
+    - <a href='#2018-02-17-inspect-and-report-results'>2018-02-17: Inspect and report results</a>
 - <a href='#ambitions'>Ambitions</a>
 
 # Goal
@@ -101,16 +104,20 @@ Work in progress.
         - Images from one set of sides (black side of route diagram)
         - I didn't include images without voids
             - I'll handle this case the next time I train
+
+## 2018-02-17: Inspect and report results
 - [ ] Inspect results
     - [x] Visually
+        - [x] Look at test set predictions
     - [ ] Quantitatively
-        - [x] Label data for the validation set
+        - [x] Label data for the test set
             - 80 images with ground truth voids
             - 385 ground truth voids (void-img ratio: 4.81)
             - Images from one set of sides (blue side of route diagram)
         - [ ] Calculate mean IoU
 - [ ] Report results
-    - [ ] Visually
+    - [x] Visually
+        - [x] Create GIF of test set predictions
     - [ ] Quantitatively
 - [ ] Improve torchcv's logging
     - [ ] Add ETA and duration
@@ -118,6 +125,7 @@ Work in progress.
     - [ ] Make checkpoint filenames more descriptive
         - [ ] Add git hash
         - [ ] Add training configuration description
+
 
 # Ambitions
 

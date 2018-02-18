@@ -6,8 +6,9 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
-from PIL import Image, ImageDraw
+from PIL import Image
 from torch.autograd import Variable
+import cv2
 
 from torchcv.models.fpnssd import FPNSSD512_2
 from torchcv.models.ssd import SSDBoxCoder
@@ -25,13 +26,15 @@ def get_predictions(img, img_size, net):
     return boxes
 
 
-def draw_preds_and_save(img, boxes, out_dir, fname):
-    img = img.resize((img_size, img_size))
-    draw = ImageDraw.Draw(img)
+def draw_preds_and_save(img, img_size, boxes, out_dir, fname):
+    shape = (img_size, img_size)
+    img = cv2.resize(img, shape, interpolation=cv2.INTER_NEAREST)
     for box in boxes:
         box = list(np.int64(np.round(box)))
-        draw.rectangle(box, outline='red')
-    img.save(osp.join(out_dir, fname))
+        x1, y1, x2, y2 = box
+        cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+    cv2.imwrite(osp.join(out_dir, fname), img)
+
 
 # video_id = '20180215_185312'
 video_id = '20180215_190227'
@@ -75,11 +78,11 @@ if have_gt:
         # gt: list of: xmin ymin xmax ymax class
         gt_boxes = [list(map(int, gt[i*5:(i+1)*5][:-1]))
                     for i in range(len(gt)//5)]
-        draw = ImageDraw.Draw(img)
-        for box in gt_boxes:
-            draw.rectangle(box, outline='green')
+        img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        for x1, y1, x2, y2 in gt_boxes:
+            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-        draw_preds_and_save(img, boxes, out_dir, fname)
+        draw_preds_and_save(img, img_size, boxes, out_dir, fname)
 
 else:
     fpaths = glob(in_dir + "/*.jpg")
@@ -89,4 +92,5 @@ else:
 
         img = Image.open(osp.join(in_dir, fname))
         boxes = get_predictions(img, img_size, net)
-        draw_preds_and_save(img, boxes, out_dir, fname)
+        img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+        draw_preds_and_save(img, img_size, boxes, out_dir, fname)
