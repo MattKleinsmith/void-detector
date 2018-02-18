@@ -2,7 +2,7 @@
 
 Detect voids in grocery store shelves.
 
-<img src="20180215_190227_2fps.gif" width="50%">
+<img src="docs/20180215_190227_2fps.gif" width="50%">
 
 The above are predictions from the first model trained. The images are from the test set.
 
@@ -25,7 +25,7 @@ The above are predictions from the first model trained. The images are from the 
 
 - [x] Collect images of grocery store shelves
     - I walked down the aisles of my local grocery store while recording the shelves
-        - <img src="grocery_store_route.png" width="50%">
+        - <img src="docs/grocery_store_route.png" width="50%">
         - I used a grocery cart to stable my smartphone's camera and to bring the height of the camera close to the height of Focal Systems' camera
         - I used the right lane of each aisle and recorded the shelves of the opposite lane
         - I walked down each aisle twice to record each side
@@ -41,7 +41,7 @@ The above are predictions from the first model trained. The images are from the 
       - Data format: lines in train.txt: name.jpg xmin ymin xmax ymax label xmin ymin xmax ymax label ...
   - [x] Choose a bounding box hand-labeling program compatible with the chosen format
     - Labeler chosen: [YOLO v2 Bounding Box Tool](https://github.com/Cartucho/yolo-boundingbox-labeler-GUI)
-      - <img src="labeler.png" width="40%">
+      - <img src="docs/labeler.png" width="40%">
     - [My fork](https://github.com/MattKleinsmith/yolo-boundingbox-labeler-GUI/tree/patch-2)
         - [x] Change output to match the torchcv format
         - [x] Make bounding box colors consistent between labeling sessions
@@ -144,7 +144,7 @@ Void categorization:
 - Input: Image of shelf
 - Output: Product IDs of voids
 - An approach: Use void localization with planograms:
-    - <img src="Planogram51.jpg" width="60%">
+    - <img src="docs/Planogram51.jpg" width="60%">
 
 Void localization:
 - Input: Image of shelf
