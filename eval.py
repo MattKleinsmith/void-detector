@@ -8,8 +8,9 @@ from torch.autograd import Variable
 from torchcv.transforms import resize
 from torchcv.datasets import ListDataset
 from torchcv.evaluations.voc_eval import voc_eval
-from torchcv.models.fpnssd import FPNSSD512_2
 from torchcv.models.ssd import SSDBoxCoder
+
+from model import FPNSSD512_2
 
 
 VIDEO_ID = '20180215_185312'
