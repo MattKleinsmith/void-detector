@@ -42,7 +42,8 @@ The above are predictions from the first model trained. The images are from the 
   - [x] Choose a bounding box hand-labeling program compatible with the chosen format
     - Labeler chosen: [YOLO v2 Bounding Box Tool](https://github.com/Cartucho/yolo-boundingbox-labeler-GUI)
       - <img src="docs/labeler.png" width="40%">
-    - [My fork](https://github.com/MattKleinsmith/yolo-boundingbox-labeler-GUI/tree/patch-2)
+    - [My pull requests](https://github.com/Cartucho/yolo-boundingbox-labeler-GUI/pulls?utf8=%E2%9C%93&q=user%3Amattkleinsmith+), and local modifications:
+        - [x] Fix TypeError (error was fatal and existed upon git clone)
         - [x] Change output to match the torchcv format
         - [x] Make bounding box colors consistent between labeling sessions
         - [x] Make box form upon mouse-up, instead of requiring two clicks

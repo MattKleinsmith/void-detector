@@ -10,8 +10,9 @@ from PIL import Image
 from torch.autograd import Variable
 import cv2
 
-from torchcv.models.fpnssd import FPNSSD512_2
 from torchcv.models.ssd import SSDBoxCoder
+
+from model import FPNSSD512_2
 
 
 def get_predictions(img, img_size, net):
@@ -36,21 +37,21 @@ def draw_preds_and_save(img, img_size, boxes, out_dir, fname):
     cv2.imwrite(osp.join(out_dir, fname), img)
 
 
-# video_id = '20180215_185312'
-video_id = '20180215_190227'
-have_gt = False
+# VIDEO_ID = '20180215_185312'
+VIDEO_ID = '20180215_190227'
+USE_GROUND_TRUTH = True
+IMG_SIZE = 512
+TORCHCV_DIR = "../void-torchcv/"
+DATASET_DIR = '../../data/voids'
+CKPT_NAME = "200_epoch_backup.pth"
 
-data_dir = '/data/voids'
-in_dir = osp.join(data_dir, video_id)
-out_dir = osp.join("../void-torchcv/outputs", video_id)
+ckpt_path = osp.join(TORCHCV_DIR, "checkpoints", CKPT_NAME)
+in_dir = osp.join(DATASET_DIR, VIDEO_ID)
+out_dir = osp.join(TORCHCV_DIR, "outputs", VIDEO_ID + "_tmp")
 os.makedirs(out_dir, exist_ok=True)
 
-ckpt_path = "../void-torchcv/examples/ssd/checkpoint/200_epoch_backup.pth"
-base_weight_path = "../void-torchcv/examples/ssd/checkpoint/fpnssd512_20_trained.pth"
-img_size = 512
-
 print('Loading model..')
-net = FPNSSD512_2(base_weight_path)
+net = FPNSSD512_2()
 ckpt = torch.load(ckpt_path)
 net.load_state_dict(ckpt['net'])
 net.cuda()
@@ -61,8 +62,8 @@ transform = transforms.Compose([
     transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
     ])
 
-if have_gt:
-    ground_truth_txt = osp.join(data_dir, video_id + ".txt")
+if USE_GROUND_TRUTH:
+    ground_truth_txt = osp.join(DATASET_DIR, VIDEO_ID + ".txt")
     with open(ground_truth_txt) as f:
         ground_truth_list = f.readlines()
 
@@ -72,7 +73,7 @@ if have_gt:
         print(fname)
 
         img = Image.open(osp.join(in_dir, fname))
-        boxes = get_predictions(img, img_size, net)
+        boxes = get_predictions(img, IMG_SIZE, net)
 
         # Get and draw ground truth boxes
         # gt: list of: xmin ymin xmax ymax class
@@ -82,7 +83,7 @@ if have_gt:
         for x1, y1, x2, y2 in gt_boxes:
             cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-        draw_preds_and_save(img, img_size, boxes, out_dir, fname)
+        draw_preds_and_save(img, IMG_SIZE, boxes, out_dir, fname)
 else:
     fpaths = glob(in_dir + "/*.jpg")
     for fpath in fpaths:
@@ -90,6 +91,6 @@ else:
         print(fname)
 
         img = Image.open(osp.join(in_dir, fname))
-        boxes = get_predictions(img, img_size, net)
+        boxes = get_predictions(img, IMG_SIZE, net)
         img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-        draw_preds_and_save(img, img_size, boxes, out_dir, fname)
+        draw_preds_and_save(img, IMG_SIZE, boxes, out_dir, fname)
