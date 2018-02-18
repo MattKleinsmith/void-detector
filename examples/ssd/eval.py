@@ -1,5 +1,4 @@
 import torch
-import torchvision
 import torch.nn.functional as F
 import torchvision.transforms as transforms
 
@@ -7,32 +6,43 @@ from torch.autograd import Variable
 from torchcv.transforms import resize
 from torchcv.datasets import ListDataset
 from torchcv.evaluations.voc_eval import voc_eval
-from torchcv.models.ssd import SSD300, SSDBoxCoder
+from torchcv.models.fpnssd import FPNSSD512_2
+from torchcv.models.ssd import SSDBoxCoder
 
-from PIL import Image
+
+VIDEO_ID = '20180215_185312'
+#VIDEO_ID = '20180215_190227'
+CKPT_PATH = './examples/ssd/checkpoint/200_epoch_backup.pth'
+IMG_SIZE = 512
+
+img_dir = '/data/voids/' + VIDEO_ID
+list_file = '/data/voids/' + VIDEO_ID + '.txt'
 
 
 print('Loading model..')
-net = SSD300(num_classes=21)
-net.load_state_dict(torch.load('./examples/ssd/checkpoint/params.pth'))
+net = FPNSSD512_2()
+net.load_state_dict(torch.load(CKPT_PATH)['net'])
 net.cuda()
 net.eval()
 
 print('Preparing dataset..')
-img_size = 300
+
+
 def transform(img, boxes, labels):
-    img, boxes = resize(img, boxes, size=(img_size,img_size))
+    img, boxes = resize(img, boxes, size=(IMG_SIZE, IMG_SIZE))
     img = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Normalize((0.485,0.456,0.406),(0.229,0.224,0.225))
+        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
     ])(img)
     return img, boxes, labels
 
-dataset = ListDataset(root='/search/odin/liukuang/data/voc_all_images/', \
-                      list_file='torchcv/datasets/voc/voc07_test.txt',
+
+dataset = ListDataset(root=img_dir,
+                      list_file=list_file,
                       transform=transform)
-dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, num_workers=2)
-box_coder = SSDBoxCoder()
+dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False,
+                                         num_workers=2)
+box_coder = SSDBoxCoder(net)
 
 pred_boxes = []
 pred_labels = []
@@ -40,12 +50,6 @@ pred_scores = []
 gt_boxes = []
 gt_labels = []
 
-with open('torchcv/datasets/voc/voc07_test_difficult.txt') as f:
-    gt_difficults = []
-    for line in f.readlines():
-        line = line.strip().split()
-        d = [int(x) for x in line[1:]]
-        gt_difficults.append(d)
 
 def eval(net, dataset):
     for i, (inputs, box_targets, label_targets) in enumerate(dataloader):
@@ -63,9 +67,9 @@ def eval(net, dataset):
         pred_labels.append(label_preds)
         pred_scores.append(score_preds)
 
-    print voc_eval(
-        pred_boxes, pred_labels, pred_scores,
-        gt_boxes, gt_labels, gt_difficults,
-        iou_thresh=0.5, use_07_metric=True)
+    ap_map_dict = voc_eval(pred_boxes, pred_labels, pred_scores, gt_boxes,
+                           gt_labels, iou_thresh=0.5, use_07_metric=True)
+    print(ap_map_dict)
+
 
 eval(net, dataset)
