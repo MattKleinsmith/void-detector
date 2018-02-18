@@ -106,19 +106,25 @@ The above are predictions from the first model trained. The images are from the 
             - I'll handle this case the next time I train
 
 ## 2018-02-17: Inspect and report results
-- [ ] Inspect results
+- [x] Inspect results
     - [x] Visually
         - [x] Look at test set predictions
-    - [ ] Quantitatively
+    - [x] Quantitatively
         - [x] Label data for the test set
             - 80 images with ground truth voids
             - 385 ground truth voids (void-img ratio: 4.81)
             - Images from one set of sides (blue side of route diagram)
-        - [ ] Calculate mean IoU
-- [ ] Report results
+        - [x] Calculate average precision (IoU threshold: 0.5)
+            - 0.5 is the [PASCAL VOC standard](http://homepages.inf.ed.ac.uk/ckiw/postscript/ijcv_voc09.pdf). CTRL+F: "Bounding box evaluation"
+- [x] Report results
     - [x] Visually
         - [x] Create GIF of test set predictions
-    - [ ] Quantitatively
+    - [x] Quantitatively: Average precision
+        - **Train: 0.9091** (N: 329)
+        - **Test: 0.1672** (N: 80)
+        - **This shows extreme overfitting, but it disagrees with the visual results**.
+            - I think I changed the way I labeled the test set, which shows the importance of standardizing the labeling process, or at least labeling in one session.
+                - How I changed my labeling style: If there was a large void next to small objects, I cut the voids into pieces with sizes equal to the size of the small objects.
 - [ ] Improve torchcv's logging
     - [ ] Add ETA and duration
     - [ ] Remove unneeded messages
@@ -138,7 +144,7 @@ Void categorization:
 - Input: Image of shelf
 - Output: Product IDs of voids
 - An approach: Use void localization with planograms:
-    - <img src="Planogram51.jpg" width="75%">
+    - <img src="Planogram51.jpg" width="60%">
 
 Void localization:
 - Input: Image of shelf
