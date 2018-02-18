@@ -1,3 +1,5 @@
+import os.path as osp
+
 import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
@@ -11,13 +13,13 @@ from torchcv.models.ssd import SSDBoxCoder
 
 
 VIDEO_ID = '20180215_185312'
-#VIDEO_ID = '20180215_190227'
-CKPT_PATH = './examples/ssd/checkpoint/200_epoch_backup.pth'
+# VIDEO_ID = '20180215_190227'
 IMG_SIZE = 512
+DATASET_DIR = '../../data/voids'
+CKPT_PATH = 'checkpoints/200_epoch_backup.pth'
 
-img_dir = '/data/voids/' + VIDEO_ID
-list_file = '/data/voids/' + VIDEO_ID + '.txt'
-
+img_dir = osp.join(DATASET_DIR, VIDEO_ID)
+list_file = osp.join(DATASET_DIR, VIDEO_ID + '.txt')
 
 print('Loading model..')
 net = FPNSSD512_2()
