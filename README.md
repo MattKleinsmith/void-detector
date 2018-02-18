@@ -122,9 +122,11 @@ The above are predictions from the first model trained. The images are from the 
     - [x] Quantitatively: Average precision
         - **Train: 0.9091** (N: 329)
         - **Test: 0.1672** (N: 80)
-        - **This shows extreme overfitting, but it disagrees with the visual results**.
-            - I think I changed the way I labeled the test set, which shows the importance of standardizing the labeling process, or at least labeling in one session.
-                - How I changed my labeling style: If there was a large void next to small objects, I cut the voids into pieces with sizes equal to the size of the small objects.
+        - **These results imply extreme overfitting, but the visual results show decent performance**.
+            - <img src="docs/20180215_190227_002190.jpg" width="50%">
+            - The predictions are in red and the ground truth is in green.
+            - The model detected some voids I missed.
+            - When labeling the test set, I tended to cut large voids into smaller voids with sizes equal to the sizes of nearby products. I didn't do this as often when labeling the training set. This difference in ground truth is likely responsible for a large loss in precision. If so, this shows the importance of documenting changes in the labeling procedure, and shows a benefit of standarizing the labeling procedure.
 - [ ] Improve torchcv's logging
     - [ ] Add ETA and duration
     - [ ] Remove unneeded messages

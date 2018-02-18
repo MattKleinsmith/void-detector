@@ -6,7 +6,8 @@ import subprocess
 
 start = 1080
 end = 2310
-fps = 2
+fps = 1
+include_pred = True
 
 fnames = glob('*.jpg')
 ids = [int(f.split('_')[-1][:-4]) for f in fnames]
@@ -21,7 +22,9 @@ for fname in fnames:
 
 delay = 100/fps
 video_id = osp.basename(os.getcwd())
-values = delay, gif_dir, video_id, fps
-cmd = "convert -delay {0} -loop 0 {1}/*.jpg {1}/{2}_{3}fps.gif".format(*values)
+pred = "_pred" if include_pred else ''
+values = delay, gif_dir, video_id, fps, pred
+layout = "convert -delay {0} -loop 0 {1}/*.jpg {1}/{2}_{3}fps{4}.gif"
+cmd = layout.format(*values)
 completed = subprocess.run(cmd.split())
 print('returncode:', completed.returncode)
