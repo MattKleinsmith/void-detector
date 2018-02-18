@@ -10,12 +10,13 @@ import torch.backends.cudnn as cudnn
 import torchvision.transforms as transforms
 from torch.autograd import Variable
 
-from torchcv.models.fpnssd import FPNSSD512_2
 from torchcv.models.ssd import SSDBoxCoder
 from torchcv.loss import SSDLoss
 from torchcv.datasets import ListDataset
 from torchcv.transforms import (resize, random_flip, random_paste, random_crop,
                                 random_distort)
+
+from model import FPNSSD512_2
 
 
 parser = argparse.ArgumentParser(description='PyTorch SSD Training')
@@ -23,16 +24,15 @@ parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
 parser.add_argument('--resume', action='store_true', help='resume from checkpoint')  # noqa
 parser.add_argument('--checkpoint', default='checkpoints/ckpt.pth', type=str, help='Where to save and load the checkpoint from')  # noqa
 parser.add_argument('--gpu', default='0', type=int, help='GPU ID (nvidia-smi)')  # noqa
-parser.add_argument('--test-code', action='store_true', help='e.g. Reduce sample size')  # noqa
+parser.add_argument('--test-code', action='store_true', help='Only one epoch, only one batch, etc.')  # noqa
 args = parser.parse_args()
 
-TEST_CODE = True  # Only one epoch, only one batch, etc.
 TRN_VIDEO_ID = '20180215_185312'
 VAL_VIDEO_ID = '20180215_190227'
 DATASET_DIR = '../../data/voids'
 
 BATCH_SIZE = 16
-NUM_EPOCHS = 200 if not TEST_CODE else 1
+NUM_EPOCHS = 200 if not args.test_code else 1
 IMG_SIZE = 512
 
 DEBUG = False  # Turn off shuffling and multiprocessing
@@ -125,7 +125,7 @@ with torch.cuda.device(args.gpu):
             print('train_loss: %.3f | avg_loss: %.3f [%d/%d]'
                   % (loss.data[0], train_loss/(batch_idx+1), batch_idx+1,
                      len(trn_dl)))
-            if TEST_CODE:
+            if args.test_code:
                 break
 
     def test(epoch):
@@ -143,7 +143,7 @@ with torch.cuda.device(args.gpu):
             print('test_loss: %.3f | avg_loss: %.3f [%d/%d]'
                   % (loss.data[0], test_loss/(batch_idx+1), batch_idx+1,
                      len(val_dl)))
-            if TEST_CODE:
+            if args.test_code:
                 test_loss = 0
                 break
 
