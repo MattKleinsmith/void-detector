@@ -83,7 +83,6 @@ if have_gt:
             cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
         draw_preds_and_save(img, img_size, boxes, out_dir, fname)
-
 else:
     fpaths = glob(in_dir + "/*.jpg")
     for fpath in fpaths:

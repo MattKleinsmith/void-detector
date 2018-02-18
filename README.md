@@ -137,6 +137,8 @@ Real-time processing on embedded device:
 Void categorization:
 - Input: Image of shelf
 - Output: Product IDs of voids
+- An approach: Use void localization with planograms:
+    - <img src="Planogram51.jpg" width="75%">
 
 Void localization:
 - Input: Image of shelf
