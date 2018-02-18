@@ -1,7 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import os
 
 from .fpn import FPN50
 from torch.autograd import Variable
@@ -23,8 +21,8 @@ class FPNSSD512(nn.Module):
         in_channels = 256
         num_anchors = (4, 6, 6, 6, 6, 4, 4)
         for i in range(len(num_anchors)):
-        	self.loc_layers += [nn.Conv2d(in_channels, num_anchors[i]*4, kernel_size=3, padding=1)]
-        	self.cls_layers += [nn.Conv2d(in_channels, num_anchors[i]*num_classes, kernel_size=3, padding=1)]
+            self.loc_layers += [nn.Conv2d(in_channels, num_anchors[i]*4, kernel_size=3, padding=1)]
+            self.cls_layers += [nn.Conv2d(in_channels, num_anchors[i]*num_classes, kernel_size=3, padding=1)]
 
     def forward(self, x):
         loc_preds = []
@@ -54,11 +52,12 @@ def test():
 
 class FPNSSD512_2(FPNSSD512):
 
-    def __init__(self, weights_path='examples/ssd/checkpoint/fpnssd512_20_trained.pth'):
+    def __init__(self, weights_path=None):
         super().__init__(num_classes=21)
         # https://drive.google.com/open?id=1yy_kUnm_hZR3uk9yLcaQSMwxVn7wApTU
         # TODO: Use https://github.com/wkentaro/gdown
-        self.load_state_dict(torch.load(weights_path))
+        if weights_path:
+            self.load_state_dict(torch.load(weights_path))
         self.num_classes = 2  # PASCAL VOC is 21
         self.loc_layers = nn.ModuleList()
         self.cls_layers = nn.ModuleList()
