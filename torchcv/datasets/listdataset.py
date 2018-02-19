@@ -16,6 +16,7 @@ class ListDataset(data.Dataset):
 
     The list file is like:
       a.jpg xmin ymin xmax ymax label xmin ymin xmax ymax label ...
+    PASCAL VOC annotations use (1, 1) as the top-left corner, not (0, 0).
     '''
     def __init__(self, root, list_file, transform=None):
         '''
@@ -49,12 +50,12 @@ class ListDataset(data.Dataset):
             box = []
             label = []
             for i in range(num_boxes):
-                xmin = splited[1+5*i]
-                ymin = splited[2+5*i]
-                xmax = splited[3+5*i]
-                ymax = splited[4+5*i]
+                xmin = float(splited[1+5*i]) - 1
+                ymin = float(splited[2+5*i]) - 1
+                xmax = float(splited[3+5*i]) - 1
+                ymax = float(splited[4+5*i]) - 1
                 c = splited[5+5*i]
-                box.append([float(xmin),float(ymin),float(xmax),float(ymax)])
+                box.append([xmin, ymin, xmax, ymax])
                 label.append(int(c))
             self.boxes.append(torch.Tensor(box))
             self.labels.append(torch.LongTensor(label))
