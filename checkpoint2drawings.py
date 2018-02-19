@@ -38,17 +38,18 @@ def draw_preds_and_save(img, img_size, boxes, out_dir, fname):
     cv2.imwrite(osp.join(out_dir, fname), img)
 
 
-# VIDEO_ID = '20180215_185312'
-VIDEO_ID = '20180215_190227'
+# VIDEO_ID = "20180215_185312"
+VIDEO_ID = "20180215_190227"
 USE_GROUND_TRUTH = True
 IMG_SIZE = 512
-TORCHCV_DIR = "../void-torchcv/"
-DATASET_DIR = '../../data/voids'
+TORCHCV_DIR = "../void-torchcv"
+RAW_DATA_DIR = "../../data/voids"
+LABEL_DIR = "labels"
 CKPT_NAME = "200_epoch_backup.pth"
 CLS_ID = 0  # void
 
 ckpt_path = osp.join(TORCHCV_DIR, "checkpoints", CKPT_NAME)
-in_dir = osp.join(DATASET_DIR, VIDEO_ID)
+in_dir = osp.join(RAW_DATA_DIR, VIDEO_ID)
 out_dir = osp.join(TORCHCV_DIR, "outputs", VIDEO_ID + "_tmp")
 os.makedirs(out_dir, exist_ok=True)
 
@@ -65,7 +66,7 @@ transform = transforms.Compose([
     ])
 
 if USE_GROUND_TRUTH:
-    ground_truth_txt = osp.join(DATASET_DIR, VIDEO_ID + ".txt")
+    ground_truth_txt = osp.join(LABEL_DIR, VIDEO_ID + ".txt")
     with open(ground_truth_txt) as f:
         ground_truth_list = f.readlines()
 

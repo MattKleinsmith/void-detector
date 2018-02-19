@@ -12,20 +12,23 @@ Bounding box labeler: https://github.com/Cartucho/yolo-boundingbox-labeler-GUI
 My fork (not on master):
 https://github.com/MattKleinsmith/yolo-boundingbox-labeler-GUI
 """
-
+import os.path as osp
 from glob import glob
 import argparse
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--out', default='labels', type=str, help="Base name of output. Will result in <name>.txt.")
-parser.add_argument('--add_one', action='store_true', help="Add one to each coordinate.")
+parser.add_argument('--out', default='labels', type=str, help="Base name of output. Will result in <name>.txt.")  # noqa
+parser.add_argument('--add_one', action='store_true', help="Add one to each coordinate.")  # noqa
 args = parser.parse_args()
+
+OUT_DIR = "../void-detector/labels"
+out_fpath = osp.join(OUT_DIR, args.out + '.txt')
 
 print("Instructions: Run this script from the bbox_text directory.")
 fnames = glob("*.txt")
 fnames.sort()
-with open(args.out + '.txt', 'a') as trn_file:
+with open(out_fpath, 'a') as trn_file:
     for fname in fnames:
         with open(fname) as f:
             content = f.readlines()

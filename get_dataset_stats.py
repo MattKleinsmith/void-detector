@@ -3,11 +3,11 @@ import argparse
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--video_id', default='20180215_190227', type=str, help="Base name of output. Will result in <name>.txt.")
+parser.add_argument('--video_id', default='20180215_190227', type=str, help="Base name of output. Will result in <name>.txt.")  # noqa
 args = parser.parse_args()
 
-data_dir = '../../data/voids'
-ground_truth_txt = osp.join(data_dir, args.video_id + ".txt")
+LABEL_DIR = "labels"
+ground_truth_txt = osp.join(LABEL_DIR, args.video_id + ".txt")
 with open(ground_truth_txt) as f:
     ground_truth_list = f.readlines()
 

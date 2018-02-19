@@ -12,9 +12,9 @@ ffmpeg -i 20180215_190227.mp4 -q:v 2 20180215_190227/20180215_190227_%06d.jpg
 # Back up frames
 cp -r 20180215_185312 /media/mwk/3TB/voids/
 cp -r 20180215_190227 /media/mwk/3TB/voids/
-"""
 
-"""
+-------------------------------------------------------------------------------
+
 This script: Extract one frame per second. Delete the rest.
 Use this script in each directory.
 Rationale:

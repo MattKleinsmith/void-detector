@@ -33,19 +33,19 @@ def fpath2id(fpath):
 
 VIDEO_ID = '20180215_185312'
 # VIDEO_ID = '20180215_190227'
-DATASET_DIR = '../../data/voids'
+RAW_DATA_DIR = '../../data/voids'
+LABEL_DIR = "labels"
 CLASS_ID = -1  # voidless
 HEIGHT = 640
 WIDTH = 480
-SYM_LINK_DST = osp.join("labels", VIDEO_ID + ".txt")
 
-ground_truth_txt = osp.join(DATASET_DIR, VIDEO_ID + ".txt")
+ground_truth_txt = osp.join(LABEL_DIR, VIDEO_ID + ".txt")
 with open(ground_truth_txt) as f:
     ground_truth_list = f.read().splitlines()
 
 labeled_ids = [line2id(line) for line in ground_truth_list]
 max_labeled_id = max(labeled_ids)
-image_dir = osp.join(DATASET_DIR, VIDEO_ID)
+image_dir = osp.join(RAW_DATA_DIR, VIDEO_ID)
 all_ids = [fpath2id(fpath) for fpath in glob(image_dir + "/*.jpg")]
 voidless_ids = [i for i in all_ids
                 if i < max_labeled_id and i not in labeled_ids]
@@ -58,6 +58,6 @@ for i in voidless_ids:
 ground_truth_list += lines
 ground_truth_list = sorted(ground_truth_list, key=line2id)
 
-with open(SYM_LINK_DST, 'w') as f:
+with open(ground_truth_txt, 'w') as f:
     for line in ground_truth_list:
         f.write(line + '\n')
