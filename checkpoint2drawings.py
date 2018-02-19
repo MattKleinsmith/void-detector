@@ -15,7 +15,7 @@ from torchcv.models.ssd import SSDBoxCoder
 from model import FPNSSD512_2
 
 
-def get_predictions(img, img_size, net):
+def get_pred_boxes(img, img_size, net, cls_id=0):  # 0: void
     x = img.resize((img_size, img_size))
     x = transform(x)
     x = Variable(x, volatile=True).cuda()
@@ -24,6 +24,7 @@ def get_predictions(img, img_size, net):
     boxes, labels, scores = box_coder.decode(
         loc_preds.data.squeeze().cpu(),
         F.softmax(cls_preds.squeeze(), dim=1).data.cpu())
+    boxes = [boxes[i] for i in len(boxes) if labels[i] == cls_id]
     return boxes
 
 
@@ -44,6 +45,7 @@ IMG_SIZE = 512
 TORCHCV_DIR = "../void-torchcv/"
 DATASET_DIR = '../../data/voids'
 CKPT_NAME = "200_epoch_backup.pth"
+CLS_ID = 0  # void
 
 ckpt_path = osp.join(TORCHCV_DIR, "checkpoints", CKPT_NAME)
 in_dir = osp.join(DATASET_DIR, VIDEO_ID)
@@ -73,7 +75,7 @@ if USE_GROUND_TRUTH:
         print(fname)
 
         img = Image.open(osp.join(in_dir, fname))
-        boxes = get_predictions(img, IMG_SIZE, net)
+        pred_boxes = get_pred_boxes(img, IMG_SIZE, net, cls_id=CLS_ID)
 
         # Get and draw ground truth boxes
         # gt: list of: xmin ymin xmax ymax class
@@ -83,7 +85,7 @@ if USE_GROUND_TRUTH:
         for x1, y1, x2, y2 in gt_boxes:
             cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
-        draw_preds_and_save(img, IMG_SIZE, boxes, out_dir, fname)
+        draw_preds_and_save(img, IMG_SIZE, pred_boxes, out_dir, fname)
 else:
     fpaths = glob(in_dir + "/*.jpg")
     for fpath in fpaths:
@@ -91,6 +93,6 @@ else:
         print(fname)
 
         img = Image.open(osp.join(in_dir, fname))
-        boxes = get_predictions(img, IMG_SIZE, net)
+        pred_boxes = get_pred_boxes(img, IMG_SIZE, net, cls_id=CLS_ID)
         img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-        draw_preds_and_save(img, IMG_SIZE, boxes, out_dir, fname)
+        draw_preds_and_save(img, IMG_SIZE, pred_boxes, out_dir, fname)
