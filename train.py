@@ -27,9 +27,10 @@ parser.add_argument('--gpu', default='0', type=int, help='GPU ID (nvidia-smi)') 
 parser.add_argument('--test-code', action='store_true', help='Only one epoch, only one batch, etc.')  # noqa
 args = parser.parse_args()
 
-TRN_VIDEO_ID = '20180215_185312'
-VAL_VIDEO_ID = '20180215_190227'
-DATASET_DIR = '../../data/voids'
+TRN_VIDEO_ID = "20180215_185312"
+VAL_VIDEO_ID = "20180215_190227"
+IMAGE_DIR = "../../data/voids"
+LABEL_DIR = "../void-detector/labels"
 
 BATCH_SIZE = 16
 NUM_EPOCHS = 200 if not args.test_code else 1
@@ -38,10 +39,10 @@ IMG_SIZE = 512
 DEBUG = False  # Turn off shuffling and multiprocessing
 NUM_WORKERS = 8 if not DEBUG else 0
 
-img_dir = osp.join(DATASET_DIR, TRN_VIDEO_ID)
-list_file = osp.join(DATASET_DIR, TRN_VIDEO_ID + '.txt')
-img_dir_test = osp.join(DATASET_DIR, VAL_VIDEO_ID)
-list_file_test = osp.join(DATASET_DIR, VAL_VIDEO_ID + '.txt')
+img_dir = osp.join(IMAGE_DIR, TRN_VIDEO_ID)
+list_file = osp.join(LABEL_DIR, TRN_VIDEO_ID + '.txt')
+img_dir_test = osp.join(IMAGE_DIR, VAL_VIDEO_ID)
+list_file_test = osp.join(LABEL_DIR, VAL_VIDEO_ID + '.txt')
 shuffle = not DEBUG
 num_classes = 2
 
