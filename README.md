@@ -12,6 +12,9 @@ The above are predictions from the first model trained. The images are from the 
     - <a href='#2018-02-15-collect-and-label-data'>2018-02-15: Collect and label data</a>
     - <a href='#2018-02-16-train-model'>2018-02-16: Train model</a>
     - <a href='#2018-02-17-inspect-and-report-results'>2018-02-17: Inspect and report results</a>
+    - <a href='#2018-02-18-train-with-voidless-images'>2018-02-18: Train with voidless images</a>
+    - <a href='#2018-02-19-understand-the-performance-drop'>2018-02-19: Understand the performance drop</a>
+    - <a href='#2018-02-20-clean-the-code'>2018-02-20: Clean the code</a>
 - <a href='#ambitions'>Ambitions</a>
 
 # Goal
@@ -135,6 +138,46 @@ The above are predictions from the first model trained. The images are from the 
         - [ ] Add git hash
         - [ ] Add training configuration description
 
+## 2018-02-18: Train with voidless images
+- [x] Figure out how to train with voidless images
+    - [x] Consider adding "name.jpg" to the label list, as opposed to "name.jpg xmin ymin xmax ymax class"
+        - Rejected: The pipeline doesn't know how to handle empty cases
+    - [x] Consider adding "name.jpg 1 1 height+1 width+1 1", where 1 is the voidless class
+        - Rejected: This will disable hard negative mining, skewing the model toward voidlessness. A model could get a good score by labeling all regions as voidless
+    - [x] Consider adding "name.jpg 1 1 height+1 width+1 -1", where -1 is the voidless class
+        - Accepted: This will ensure voidless regions are considered negative examples in hard negative mining
+    - [x] Hard negative mining returns nothing when there are no positive examples. Figure out what to do.
+        - If there are no positive examples, I'll return five negative examples. Let this be a hyperparameter.
+            - Warning: This hyperparameter seems more dangerous than usual with respect to overfitting. I'll likely leave it at five instead of tuning it.
+- [x] Train with voidless images (output: Model 2)
+- [x] Inspect and report results
+    - Average precision:
+        - Train: **0.6276** (N: 476) (1st model: 0.9041))
+        - Test: **0.1541** (N: 100) (1st model: 0.1604))
+    - Model 2 slowed the system down significantly.
+        - Model 1 took 10 seconds to evaluate on the training set. Model 2 took 27 minutes.
+            - Model 2 outputted 100 times more location predictions than Model 1, which is the default behavior of the architecture; i.e., Model 2 is far closer to random than Model 1.
+    - I expected Model 2 to outperform Model 1, because I gave it more information. In particular, I expected Model 2 to have fewer false positives than Model 1, but potentially fewer true positives, too. Is there a bug in my code, or are the voidless images derailing the training process?
+
+## 2018-02-19: Understand the performance drop
+- [ ] Study the pipeline
+    - [x] List Dataset
+    - [x] Data augmentations
+    - [x] SSD encoder
+    - [ ] FPNSSD512
+    - [x] SSD loss
+        - [x] Location loss
+        - [x] Hard negative mining
+        - [x] Class loss
+        - My custom loss function is returning giant and NaN losses.
+    - [x] SSD decoder
+    - [x] Evaluator
+    - [ ] Visualize each
+- [ ] Train on the first dataset to test code changes
+
+## 2018-02-20: Clean the code
+- [ ] Merge void-detector repo with void-torchcv repo
+- [ ] Dockerize
 
 # Ambitions
 
