@@ -62,6 +62,7 @@ def draw_preds_and_save(img, img_size, boxes, out_dir, fname):
 parser = argparse.ArgumentParser(description='Draws bounding box predictions')
 parser.add_argument('--input', default='../../data/voids/', type=str, help="Directory to read images from")  # noqa
 parser.add_argument('--output', default='outputs', type=str, help="Directory to write drawing to")  # noqa
+
 parser.add_argument('--checkpoint', default='checkpoints/2018-02-16_first-model.pth', type=str, help='Checkpoint path')  # noqa
 parser.add_argument('--video-id', default=-1, type=int, choices=[-1, 0, 1])  # noqa
 parser.add_argument('--draw-ground-truth', action='store_true')  # noqa
