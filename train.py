@@ -4,7 +4,6 @@ import random
 import argparse
 from time import time
 
-import numpy as np
 import torch
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
