@@ -15,6 +15,23 @@ from torchcv.models.ssd import SSDBoxCoder
 from model import FPNSSD512_2
 
 
+def get_ground_truth(line):
+    splited = line.strip().split()
+    fname = splited[0]
+    boxes = []
+    labels = []
+    num_boxes = (len(splited) - 1) // 5
+    for i in range(num_boxes):
+        xmin = int(np.round(float((splited[1+5*i])))) - 1
+        ymin = int(np.round(float((splited[2+5*i])))) - 1
+        xmax = int(np.round(float((splited[3+5*i])))) - 1
+        ymax = int(np.round(float((splited[4+5*i])))) - 1
+        c = splited[5+5*i]
+        boxes.append([xmin, ymin, xmax, ymax])
+        labels.append(int(c))
+    return fname, boxes, labels
+
+
 def get_pred_boxes(img, img_size, net, cls_id=0):  # 0: void
     x = img.resize((img_size, img_size))
     x = transform(x)
@@ -24,7 +41,7 @@ def get_pred_boxes(img, img_size, net, cls_id=0):  # 0: void
     boxes, labels, scores = box_coder.decode(
         loc_preds.data.squeeze().cpu(),
         F.softmax(cls_preds.squeeze(), dim=1).data.cpu())
-    boxes = [boxes[i] for i in len(boxes) if labels[i] == cls_id]
+    boxes = [box for i, box in enumerate(boxes) if labels[i] == cls_id]
     return boxes
 
 
@@ -40,17 +57,19 @@ def draw_preds_and_save(img, img_size, boxes, out_dir, fname):
 
 # VIDEO_ID = "20180215_185312"
 VIDEO_ID = "20180215_190227"
+OUTPUT_SUFFIX = ''
 USE_GROUND_TRUTH = True
 IMG_SIZE = 512
-TORCHCV_DIR = "../void-torchcv"
 RAW_DATA_DIR = "../../data/voids"
 LABEL_DIR = "labels"
 CKPT_NAME = "200_epoch_backup.pth"
 CLS_ID = 0  # void
 
-ckpt_path = osp.join(TORCHCV_DIR, "checkpoints", CKPT_NAME)
+use_gt = "_gt" if USE_GROUND_TRUTH else ''
+suffix = "_" + OUTPUT_SUFFIX if OUTPUT_SUFFIX else ''
+ckpt_path = osp.join("checkpoints", CKPT_NAME)
 in_dir = osp.join(RAW_DATA_DIR, VIDEO_ID)
-out_dir = osp.join(TORCHCV_DIR, "outputs", VIDEO_ID + "_tmp")
+out_dir = osp.join("outputs", VIDEO_ID + use_gt + suffix)
 os.makedirs(out_dir, exist_ok=True)
 
 print('Loading model..')
@@ -68,31 +87,23 @@ transform = transforms.Compose([
 if USE_GROUND_TRUTH:
     ground_truth_txt = osp.join(LABEL_DIR, VIDEO_ID + ".txt")
     with open(ground_truth_txt) as f:
-        ground_truth_list = f.readlines()
-
-    for line in ground_truth_list:
-        values = line.split()
-        fname, gt = values[0], values[1:]
+        ground_truth_lines = f.readlines()
+    for line in ground_truth_lines:
+        fname, gt_boxes, gt_labels = get_ground_truth(line)
+        gt_boxes = [box for i, box in enumerate(gt_boxes)
+                    if gt_labels[i] == CLS_ID]
         print(fname)
-
         img = Image.open(osp.join(in_dir, fname))
         pred_boxes = get_pred_boxes(img, IMG_SIZE, net, cls_id=CLS_ID)
-
-        # Get and draw ground truth boxes
-        # gt: list of: xmin ymin xmax ymax class
-        gt_boxes = [list(map(int, gt[i*5:(i+1)*5][:-1]))
-                    for i in range(len(gt)//5)]
         img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
         for x1, y1, x2, y2 in gt_boxes:
             cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
         draw_preds_and_save(img, IMG_SIZE, pred_boxes, out_dir, fname)
 else:
     fpaths = glob(in_dir + "/*.jpg")
     for fpath in fpaths:
         fname = fpath.split('/')[-1]
         print(fname)
-
         img = Image.open(osp.join(in_dir, fname))
         pred_boxes = get_pred_boxes(img, IMG_SIZE, net, cls_id=CLS_ID)
         img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
