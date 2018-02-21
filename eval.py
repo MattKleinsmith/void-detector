@@ -21,6 +21,7 @@ parser.add_argument('--test-code', action='store_true', help='Use a small sample
 parser.add_argument('--checkpoint', default='checkpoints/2018-02-16_first-model.pth', type=str, help='Checkpoint path')  # noqa
 parser.add_argument('--video-id', default='20180215_185312', type=str, choices=['20180215_185312', '20180215_190227'])  # noqa
 args = parser.parse_args()
+
 IMG_SIZE = 512
 IMAGE_DIR = '../../data/voids'
 LABEL_DIR = "../void-detector/labels"
