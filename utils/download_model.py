@@ -2,7 +2,7 @@ import hashlib
 import os
 import os.path as osp
 
-import gdown
+import gdown2
 
 
 def md5sum(filename, blocksize=65536):
@@ -30,7 +30,7 @@ def cached_download(url, path, md5=None, quiet=False):
         dirpath = osp.dirname(path)
         if not osp.exists(dirpath):
             os.makedirs(dirpath)
-        return gdown.download(url, path, quiet=quiet)
+        return gdown2.download(url, path, quiet=quiet)
 
 
 if __name__ == '__main__':

@@ -6,6 +6,19 @@ Detect voids in grocery store shelves.
 
 The above are predictions from the first model trained. The images are from the test set.
 
+## Docker demo
+
+`python demo.py IMAGE_DIR`
+
+The demo will draw bounding boxes on copies of the given images, similar to the GIF above. The results will be stored in `IMAGE_DIR/void-detector-outputs/`.
+
+Requirements:
+
+- [nvidia-docker 2.0](https://github.com/nvidia/nvidia-docker/wiki/Installation-(version-2.0))
+- Access to the Docker image
+    - Option 1: Obtain read permissions for the Docker image at matthewkleinsmith/void-detector
+    - Option 2: Build the image with `docker build -t matthewkleinsmith/void-detector docker/.`
+
 ## Table of Contents
 - <a href='#goal'>Goal</a>
 - <a href='#log'>Log</a>
@@ -191,9 +204,9 @@ The above are predictions from the first model trained. The images are from the 
                 - Result: Train: 0.9091 (N: 329): Hypothesis confirmed
 - [x] Merge void-detector repo with void-torchcv repo
 - [x] Retrain Model 2
-    - Result: 0.9044 (N: 476) (during bug: 0.6276) (1st model: 0.9041))
+    - Result: **0.9044** (N: 476) (**during bug: 0.6276**) (1st model: 0.9041))
     - I expected more than 0.03% improvement w.r.t. Model 1 (and it might just be noise), but at least the bug is gone. Later I'll train the models until convergence with the current hyperparameter configuration, and afterward start tuning the hyperparameters.
-- [ ] Dockerize
+- [x] Dockerize
 
 # Ambitions
 

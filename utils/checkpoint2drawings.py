@@ -80,10 +80,11 @@ else:
     video_id = video_ids[args.video_id]
 use_gt = "_gt" if args.draw_ground_truth else ''
 suffix = "_" + OUTPUT_DIR_SUFFIX if OUTPUT_DIR_SUFFIX else ''
-in_dir = args.input + video_id
+in_dir = args.input
 out_dir = osp.join(args.output, video_id + use_gt + suffix)
-print("in_dir:", in_dir)
-print("out_dir", out_dir)
+if in_dir != "/inputs":  # i.e. if not Docker
+    print("in_dir:", in_dir)
+    print("out_dir:", out_dir if out_dir[-1] != '/' else out_dir[:-1])
 os.makedirs(out_dir, exist_ok=True)
 
 print('Loading model..')
