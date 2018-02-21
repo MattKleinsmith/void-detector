@@ -16,11 +16,15 @@ from model import FPNSSD512_2
 VIDEO_ID = '20180215_185312'
 # VIDEO_ID = '20180215_190227'
 IMG_SIZE = 512
-DATASET_DIR = '../../data/voids'
-CKPT_PATH = 'checkpoints/200_epoch_backup.pth'
+IMAGE_DIR = '../../data/voids'
+LABEL_DIR = "../void-detector/labels"
+#CKPT_PATH = 'checkpoints/200_epoch_voidless_included_14.pth'
+CKPT_PATH = 'checkpoints/2018-02-20--15-31-39_GIT-fee553b__save_based_on_trn_epoch-199.pth'
+VOIDS_ONLY = False
+voids = "_voids" if VOIDS_ONLY else ''
 
-img_dir = osp.join(DATASET_DIR, VIDEO_ID)
-list_file = osp.join(DATASET_DIR, VIDEO_ID + '.txt')
+img_dir = osp.join(IMAGE_DIR, VIDEO_ID)
+list_file = osp.join(LABEL_DIR, VIDEO_ID + voids + '.txt')
 
 print('Loading model..')
 net = FPNSSD512_2()

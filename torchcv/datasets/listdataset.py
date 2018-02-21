@@ -50,10 +50,10 @@ class ListDataset(data.Dataset):
             box = []
             label = []
             for i in range(num_boxes):
-                xmin = float(splited[1+5*i]) - 1
-                ymin = float(splited[2+5*i]) - 1
-                xmax = float(splited[3+5*i]) - 1
-                ymax = float(splited[4+5*i]) - 1
+                xmin = float(splited[1+5*i])
+                ymin = float(splited[2+5*i])
+                xmax = float(splited[3+5*i])
+                ymax = float(splited[4+5*i])
                 c = splited[5+5*i]
                 box.append([xmin, ymin, xmax, ymax])
                 label.append(int(c))

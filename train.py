@@ -23,18 +23,15 @@ from utils import set_seed, get_log_prefix
 
 
 parser = argparse.ArgumentParser(description='PyTorch SSD Training')
-parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
-parser.add_argument('--resume', action='store_true', help='resume from checkpoint')  # noqa
-parser.add_argument('--checkpoint', default='checkpoints/ckpt.pth', type=str, help='Where to save and load the checkpoint from')  # noqa
 parser.add_argument('--gpu', default='0', type=int, help='GPU ID (nvidia-smi)')  # noqa
 parser.add_argument('--test-code', action='store_true', help='Only one epoch, only one batch, etc.')  # noqa
 args = parser.parse_args()
 
 TRN_VIDEO_ID = "20180215_185312"
-VAL_VIDEO_ID = "20180215_190227"
+#VAL_VIDEO_ID = "20180215_190227"
+VAL_VIDEO_ID = TRN_VIDEO_ID
 VOIDS_ONLY = True
-IMAGE_DIR = "../../data/voids"
-LABEL_DIR = "../void-detector/labels"
+RUN_NAME = 'save_based_on_trn'
 
 BATCH_SIZE = 16 if not args.test_code else 2
 NUM_EPOCHS = 200 if not args.test_code else 1
@@ -44,29 +41,28 @@ DEBUG = False  # Turn off shuffling and multiprocessing
 NUM_WORKERS = 8 if not DEBUG else 0
 SEED = 123
 
-voids = "_voids" if VOIDS_ONLY else ''
+IMAGE_DIR = "../../data/voids"
+LABEL_DIR = "../void-detector/labels"
+CKPT_DIR = "checkpoints"
+
 set_seed(SEED)
 img_dir = osp.join(IMAGE_DIR, TRN_VIDEO_ID)
+voids = "_voids" if VOIDS_ONLY else ''
 list_file = osp.join(LABEL_DIR, TRN_VIDEO_ID + voids + '.txt')
+print("Training on:", list_file)
 img_dir_test = osp.join(IMAGE_DIR, VAL_VIDEO_ID)
 list_file_test = osp.join(LABEL_DIR, VAL_VIDEO_ID + voids + '.txt')
+print("Testing on:", list_file_test)
 shuffle = not DEBUG
 num_classes = 2
+os.makedirs(CKPT_DIR, exist_ok=True)
 
 # Model
 print('==> Building model..')
 
-if args.resume:
-    print('==> Resuming from checkpoint..')
-    net = FPNSSD512_2()
-    checkpoint = torch.load(args.checkpoint)
-    net.load_state_dict(checkpoint['net'])
-    best_loss = checkpoint['loss']
-    start_epoch = checkpoint['epoch']
-else:
-    net = FPNSSD512_2(weights_path='checkpoints/fpnssd512_20_trained.pth')
-    best_loss = float('inf')  # best test loss
-    start_epoch = 0  # start from epoch 0 or last epoch
+net = FPNSSD512_2(weights_path='checkpoints/fpnssd512_20_trained.pth')
+best_loss = float('inf')  # best test loss
+start_epoch = 0  # start from epoch 0 or last epoch
 
 # Dataset
 print('==> Preparing dataset..')
@@ -113,7 +109,7 @@ with torch.cuda.device(args.gpu):
     net.cuda()
     cudnn.benchmark = True
     criterion = SSDLoss(num_classes=2)
-    optimizer = optim.SGD(net.parameters(), lr=args.lr, momentum=0.9,
+    optimizer = optim.SGD(net.parameters(), lr=1e-3, momentum=0.9,
                           weight_decay=1e-4)
 
     def train(epoch):
@@ -138,7 +134,7 @@ with torch.cuda.device(args.gpu):
             if args.test_code:
                 break
 
-    def test(epoch):
+    def test(epoch, log_prefix):
         print('\nTest')
         net.eval()
         test_loss = 0
@@ -167,17 +163,16 @@ with torch.cuda.device(args.gpu):
                 'loss': test_loss,
                 'epoch': epoch,
             }
-            if not os.path.isdir(os.path.dirname(args.checkpoint)):
-                os.mkdir(os.path.dirname(args.checkpoint))
-            ckpt_dir = args.checkpoint.split('/')[0]
             suffix = ('epoch-%03d' % epoch) + '.pth'
-            ckpt_path = osp.join(ckpt_dir, get_log_prefix() + suffix)
+            ckpt_path = osp.join(CKPT_DIR, log_prefix + suffix)
             torch.save(state, ckpt_path)
             print(ckpt_path)
             best_loss = test_loss
 
+    suffix = '_' + RUN_NAME + '_' if RUN_NAME else ''
+    log_prefix = get_log_prefix() + suffix
     start = time()
     for epoch in range(start_epoch, start_epoch+NUM_EPOCHS):
         train(epoch)
-        test(epoch)
+        test(epoch, log_prefix)
     print("Minutes elapsed:", (time() - start)/60)
