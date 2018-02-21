@@ -8,6 +8,7 @@ from __future__ import division
 import six
 import itertools
 import numpy as np
+import torch
 
 from collections import defaultdict
 
@@ -26,7 +27,10 @@ def voc_eval(pred_bboxes, pred_labels, pred_scores, gt_bboxes, gt_labels,
 
 def xy2yx(boxes):
     '''Convert box (xmin,ymin,xmax,ymax) to (ymin,xmin,ymax,xmax).'''
-    c0 = boxes[:,0].clone()
+    try:
+        c0 = boxes[:,0].clone()
+    except IndexError:
+        return torch.FloatTensor([])
     c2 = boxes[:,2].clone()
     boxes[:,0] = boxes[:,1]
     boxes[:,1] = c0

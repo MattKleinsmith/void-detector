@@ -157,7 +157,7 @@ class SSDBoxCoder:
         try:
             boxes = torch.cat(boxes, 0)
         except RuntimeError:
-            return [], [], []
+            return torch.FloatTensor([]), torch.FloatTensor([]), torch.FloatTensor([])
         labels = torch.cat(labels, 0)
         scores = torch.cat(scores, 0)
         return boxes, labels, scores

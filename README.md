@@ -190,8 +190,9 @@ The above are predictions from the first model trained. The images are from the 
             - [x] Test with Model 1
                 - Result: Train: 0.9091 (N: 329): Hypothesis confirmed
 - [x] Merge void-detector repo with void-torchcv repo
-- [ ] Retrain Model 2
-    - Result:
+- [x] Retrain Model 2
+    - Result: 0.9044 (N: 476) (during bug: 0.6276) (1st model: 0.9041))
+    - I expected more than 0.03% improvement w.r.t. Model 1 (and it might just be noise), but at least the bug is gone. Later I'll train the models until convergence with the current hyperparameter configuration, and afterward start tuning the hyperparameters.
 - [ ] Dockerize
 
 # Ambitions

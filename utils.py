@@ -16,7 +16,7 @@ def get_log_prefix(include_date=True):
     fpath = ''
     if include_date:
         fpath += get_datetime() + "_"
-    fpath += "GIT-%s_" % git_hash().decode("utf-8")
+    fpath += "GIT-%s" % git_hash().decode("utf-8")
     return fpath
 
 
