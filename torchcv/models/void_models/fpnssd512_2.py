@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from torchcv.models.fpnssd import FPNSSD512
+from ..fpnssd import FPNSSD512
 
 
 class FPNSSD512_2(FPNSSD512):

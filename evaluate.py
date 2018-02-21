@@ -12,7 +12,7 @@ from torchcv.datasets import ListDataset
 from torchcv.evaluations.voc_eval import voc_eval
 from torchcv.models.ssd import SSDBoxCoder
 
-from model import FPNSSD512_2
+from torchcv.models.void_models import FPNSSD512_2
 
 
 parser = argparse.ArgumentParser(description='PyTorch SSD Evaluation')
@@ -65,7 +65,7 @@ with torch.cuda.device(args.gpu):
     gt_boxes = []
     gt_labels = []
 
-    def eval(net, dataset):
+    def evaluate(net, dataset):
         for i, (inputs, box_targets, label_targets) in enumerate(dataloader):
             print('%d/%d' % (i, len(dataloader)))
             gt_boxes.append(box_targets.squeeze(0))
@@ -86,5 +86,5 @@ with torch.cuda.device(args.gpu):
         print(ap_map_dict)
 
     start = time()
-    eval(net, dataset)
+    evaluate(net, dataset)
     print("Minutes elapsed:", (time() - start)/60)

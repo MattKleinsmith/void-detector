@@ -16,8 +16,8 @@ from torchcv.datasets import ListDataset
 from torchcv.transforms import (resize, random_flip, random_paste, random_crop,
                                 random_distort)
 
-from model import FPNSSD512_2
-#from loss import SSDLoss
+from torchcv.models.void_models import FPNSSD512_2
+#from torchcv.loss.void_losses import SSDLoss
 from utils import set_seed, get_log_prefix
 
 

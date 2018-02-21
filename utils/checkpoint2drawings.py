@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 from torchcv.models.ssd import SSDBoxCoder
 
-from model import FPNSSD512_2
+from torchcv.models.void_models import FPNSSD512_2
 
 
 def get_ground_truth(line):
