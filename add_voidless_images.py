@@ -49,7 +49,7 @@ image_dir = osp.join(RAW_DATA_DIR, VIDEO_ID)
 all_ids = [fpath2id(fpath) for fpath in glob(image_dir + "/*.jpg")]
 voidless_ids = [i for i in all_ids
                 if i < max_labeled_id and i not in labeled_ids]
-voidless_label = "1 1 {} {} {}".format(HEIGHT+1, WIDTH+1, CLASS_ID)
+voidless_label = "1 1 {} {} {}".format(WIDTH, HEIGHT, CLASS_ID)
 lines = []
 for i in voidless_ids:
     fname = str(VIDEO_ID) + "_%06d.jpg" % i
