@@ -16,7 +16,7 @@ cp -r 20180215_190227 /media/mwk/3TB/voids/
 -------------------------------------------------------------------------------
 
 This script: Extract one frame per second. Delete the rest.
-Use this script in each directory.
+Use this script in each image directory.
 Rationale:
     Hypothesis: Labeling two different voids will give more information
         than labeling the same void twice in different positions.

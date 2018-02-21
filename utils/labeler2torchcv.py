@@ -1,12 +1,14 @@
 """
+Run this script from the bbox_test directory in the labeler dir
+
 2018-02-16:
 - The VOC PASCAL format defines the top-left corner as (1, 1), not (0, 0).
 Make sure your labeler takes this into account, or add one to each coordinate
 here.
 - The labeler program, reasonably, stores bounding box information of name.jpg
-in name.txt, with each bounding box on a separate line. I'll need to convert
-this to torchcv format, where all the bounding boxes for a single image are on
-one line.
+in name.txt, with each bounding box on a separate line. This script converts
+these to the torchcv format, where all the bounding boxes for a single image
+are on one line.
 
 Bounding box labeler: https://github.com/Cartucho/yolo-boundingbox-labeler-GUI
 My fork (not on master):

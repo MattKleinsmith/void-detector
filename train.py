@@ -31,7 +31,7 @@ TRN_VIDEO_ID = "20180215_185312"
 #VAL_VIDEO_ID = "20180215_190227"
 VAL_VIDEO_ID = TRN_VIDEO_ID
 VOIDS_ONLY = True
-RUN_NAME = 'save_based_on_trn'
+RUN_NAME = 'save-based-on-trn'
 
 BATCH_SIZE = 16 if not args.test_code else 2
 NUM_EPOCHS = 200 if not args.test_code else 1

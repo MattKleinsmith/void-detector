@@ -1,3 +1,5 @@
+'''Run from project root, or whichever dir that contains the labels dir'''
+
 import os
 import os.path as osp
 from glob import glob

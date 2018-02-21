@@ -10,6 +10,8 @@ A use case: You sampled images from the video at one frame per second, labeled
 some in order, starting from the first one, and now want to add the voidless
 images.
 
+Run from project root, or whichever dir that contains the labels dir
+
 TODO: Add a "voidless" button to the hand labeler to replace this script.
 '''
 
