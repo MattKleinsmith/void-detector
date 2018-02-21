@@ -176,7 +176,22 @@ The above are predictions from the first model trained. The images are from the 
 - [ ] Train on the first dataset to test code changes
 
 ## 2018-02-20: Clean the code
+- [x] Train on the first dataset to test code changes
+    - Model 1 performed poorly when trained with the new code
+- [x] Debug
+    - [x] Explain Model 1's precision drop
+        - Fact: The training data is the same.
+        - Fact: The code is not the same.
+        - Fact: New: The saver stopped saving by epoch 20.
+        - Fact: The saver saves based on the validation data.
+        - Fact: The validation data is not the same.
+        - Hypothesis: The difference in validation data is responsible for the drop in precision.
+        - [x] Test hypothesis
+            - [x] Test with Model 1
+                - Result: Train: 0.9091 (N: 329): Success
 - [ ] Merge void-detector repo with void-torchcv repo
+- [ ] Retrain Model 2
+    - Result:
 - [ ] Dockerize
 
 # Ambitions
