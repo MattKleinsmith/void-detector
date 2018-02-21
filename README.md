@@ -85,7 +85,7 @@ The above are predictions from the first model trained. The images are from the 
       - [x] The labeler program, reasonably, stores bounding box information of name.jpg in name.txt, with each bounding box on a separate line. I'll need to convert this to torchcv format, where all the bounding boxes for a single image are on one line.
       - [x] I need to append the video timestamp to label names to avoid name conflicts.
     - [x] Customize model, and modify training pipeline accordingly
-        - [My fork of torchcv](https://github.com/MattKleinsmith/void-torchcv):
+        - [My fork of torchcv](torchcv):
             - [x] Change the number of classes from 21 to 2
             - [x] Reset the conv layers in the classifiers and locators
             - Leave the base model weights alone
@@ -188,8 +188,8 @@ The above are predictions from the first model trained. The images are from the 
         - Hypothesis: The difference in validation data is responsible for the drop in precision.
         - [x] Test hypothesis
             - [x] Test with Model 1
-                - Result: Train: 0.9091 (N: 329): Success
-- [ ] Merge void-detector repo with void-torchcv repo
+                - Result: Train: 0.9091 (N: 329): Hypothesis confirmed
+- [x] Merge void-detector repo with void-torchcv repo
 - [ ] Retrain Model 2
     - Result:
 - [ ] Dockerize
