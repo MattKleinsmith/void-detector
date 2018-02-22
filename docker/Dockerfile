@@ -66,4 +66,6 @@ RUN python utils/download_model.py
 ## Command ##
 #############
 
-CMD ipython -- utils/checkpoint2drawings.py --input /inputs --output /outputs --gpu $GPU_ID
+ENV TEST_CODE=""
+
+CMD ipython -- utils/checkpoint2drawings.py --input /inputs --output /outputs --gpu $GPU_ID $TEST_CODE

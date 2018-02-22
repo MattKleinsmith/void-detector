@@ -16,16 +16,17 @@ in_dir = osp.abspath(args.images)
 out_dir = (osp.abspath(args.out_dir) if args.out_dir else
            osp.join(in_dir, "void-detector-outputs"))
 values = [in_dir, out_dir, args.gpu]
+if args.test_code:
+    values.append("--test-code")
 
 if args.dockerless:
     download_model()
     cmd = "ipython -- utils/checkpoint2drawings.py"
-    cmd += " --input {} --output {} --gpu {}".format(*values)
-    if args.test_code:
-        cmd += " --test-code"
+    cmd += " --input {} --output {} --gpu {} {}".format(*values)
 else:
     print("Host directories:\n{2}{0}\n{2}{1}".format(in_dir, out_dir, ' '*4))
     cmd = "docker run --rm -it --runtime=nvidia --ipc=host"
-    cmd += " -v {}:/inputs -v {}:/outputs -e GPU_ID={}".format(*values)
+    cmd += " -v {}:/inputs -v {}:/outputs -e GPU_ID={} -e TEST_CODE={}"
+    cmd = cmd.format(*values)
     cmd += " matthewkleinsmith/void-detector"
 subprocess.run(cmd.split())

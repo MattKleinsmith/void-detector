@@ -233,6 +233,7 @@ Requirements:
     - [x] Make checkpoint filenames more descriptive
         - [x] Add git hash
         - [x] Add training configuration description
+- [x] Add tests: `pytest tests/test.py`
 - [ ] trials
     - [ ] config info (HPs etc)
     - [ ] final results
