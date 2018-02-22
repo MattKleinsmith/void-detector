@@ -28,6 +28,7 @@ Requirements:
     - <a href='#2018-02-18-train-with-voidless-images'>2018-02-18: Train with voidless images</a>
     - <a href='#2018-02-19-understand-the-performance-drop'>2018-02-19: Understand the performance drop</a>
     - <a href='#2018-02-20-clean-the-code'>2018-02-20: Clean the code</a>
+    - <a href='#2018-02-21-set-up-postgresql-logging'>2018-02-21: Set up PostgreSQL logging</a>
 - <a href='#ambitions'>Ambitions</a>
 
 # Goal
@@ -207,6 +208,19 @@ Requirements:
     - Result: **0.9044** (N: 476) (**during bug: 0.6276**) (1st model: 0.9041))
     - I expected more than 0.03% improvement w.r.t. Model 1 (and it might just be noise), but at least the bug is gone. Later I'll train the models until convergence with the current hyperparameter configuration, and afterward start tuning the hyperparameters.
 - [x] Dockerize
+    - [Automated build](https://hub.docker.com/r/matthewkleinsmith/void-detector/)
+
+## 2018-02-21: Set up PostgreSQL logging
+- [ ] Clean code a little more
+    - [x] Preserve original image shape in the demo
+    - [ ] Allow non-Docker in the demo
+    - [ ] Add GPU selection to the demo
+- [ ] trials
+    - [ ] config info (HPs etc)
+    - [ ] final results
+    - [ ] epoch-by-epoch results
+    - [ ] the evolution of void boxes on one or two images
+    - [ ] the evolution of non-void boxes on one or two images
 
 # Ambitions
 

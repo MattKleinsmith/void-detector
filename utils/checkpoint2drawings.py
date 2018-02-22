@@ -70,6 +70,7 @@ parser.add_argument('--output', default='outputs', type=str, help="Directory to 
 parser.add_argument('--checkpoint', default='checkpoints/2018-02-16_first-model.pth', type=str, help='Checkpoint path')  # noqa
 parser.add_argument('--video-id', default=-1, type=int, choices=[-1, 0, 1])  # noqa
 parser.add_argument('--draw-ground-truth', action='store_true')  # noqa
+parser.add_argument('--gpu', default='0', type=int, help='GPU ID (nvidia-smi)')  # noqa
 args = parser.parse_args()
 
 OUTPUT_DIR_SUFFIX = ''  # Make this whatever you'd like
@@ -95,38 +96,40 @@ print('Loading model..')
 net = FPNSSD512_2()
 ckpt = torch.load(args.checkpoint)
 net.load_state_dict(ckpt['net'])
-net.cuda()
-net.eval()
 
-transform = transforms.Compose([
-    transforms.ToTensor(),
-    transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
-    ])
+with torch.cuda.device(args.gpu):
+    net.cuda()
+    net.eval()
 
-if args.draw_ground_truth:
-    ground_truth_txt = osp.join(LABEL_DIR, video_id + ".txt")
-    with open(ground_truth_txt) as f:
-        ground_truth_lines = f.readlines()
-    tqdm_lines = tqdm(ground_truth_lines, ncols=80)
-    for line in tqdm_lines:
-        fname, gt_boxes, gt_labels = get_ground_truth(line)
-        gt_boxes = [box for i, box in enumerate(gt_boxes)
-                    if gt_labels[i] == CLS_ID]
-        tqdm_lines.set_postfix(fname=fname)
-        img = Image.open(osp.join(in_dir, fname))
-        pred_boxes = get_pred_boxes(img, IMG_SIZE, net, cls_id=CLS_ID)
-        img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-        for x1, y1, x2, y2 in gt_boxes:
-            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-        draw_preds_and_save(img, IMG_SIZE, pred_boxes, out_dir, fname)
-else:
-    fpaths = glob(in_dir + "/*.jpg")
-    fpaths.sort()
-    tqdm_fpaths = tqdm(fpaths, ncols=80)
-    for fpath in tqdm_fpaths:
-        fname = fpath.split('/')[-1]
-        tqdm_fpaths.set_postfix(fname=fname)
-        img = Image.open(osp.join(in_dir, fname))
-        pred_boxes = get_pred_boxes(img, IMG_SIZE, net, cls_id=CLS_ID)
-        img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-        draw_preds_and_save(img, IMG_SIZE, pred_boxes, out_dir, fname)
+    transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+        ])
+
+    if args.draw_ground_truth:
+        ground_truth_txt = osp.join(LABEL_DIR, video_id + ".txt")
+        with open(ground_truth_txt) as f:
+            ground_truth_lines = f.readlines()
+        tqdm_lines = tqdm(ground_truth_lines, ncols=80)
+        for line in tqdm_lines:
+            fname, gt_boxes, gt_labels = get_ground_truth(line)
+            gt_boxes = [box for i, box in enumerate(gt_boxes)
+                        if gt_labels[i] == CLS_ID]
+            tqdm_lines.set_postfix(fname=fname)
+            img = Image.open(osp.join(in_dir, fname))
+            pred_boxes = get_pred_boxes(img, IMG_SIZE, net, cls_id=CLS_ID)
+            img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+            for x1, y1, x2, y2 in gt_boxes:
+                cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+            draw_preds_and_save(img, IMG_SIZE, pred_boxes, out_dir, fname)
+    else:
+        fpaths = glob(in_dir + "/*.jpg")
+        fpaths.sort()
+        tqdm_fpaths = tqdm(fpaths, ncols=80)
+        for fpath in tqdm_fpaths:
+            fname = fpath.split('/')[-1]
+            tqdm_fpaths.set_postfix(fname=fname)
+            img = Image.open(osp.join(in_dir, fname))
+            pred_boxes = get_pred_boxes(img, IMG_SIZE, net, cls_id=CLS_ID)
+            img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+            draw_preds_and_save(img, IMG_SIZE, pred_boxes, out_dir, fname)

@@ -66,4 +66,4 @@ RUN python utils/download_model.py
 ## Command ##
 #############
 
-CMD ipython -- demo.py /inputs --out-dir /outputs --from-docker
+CMD ipython -- utils/checkpoint2drawings.py --input /inputs --output /outputs --gpu $GPU_ID
