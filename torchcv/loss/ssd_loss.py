@@ -64,7 +64,7 @@ class SSDLoss(nn.Module):
         neg = self._hard_negative_mining(cls_loss, pos)  # [N,#anchors]
         cls_loss = cls_loss[pos|neg].sum()
 
-        print('loc_loss: %.3f | cls_loss: %.3f' \
-            % (loc_loss.data[0]/num_pos, cls_loss.data[0]/num_pos), end=' | ')
+        #print('loc_loss: %.3f | cls_loss: %.3f' \
+    #        % (loc_loss.data[0]/num_pos, cls_loss.data[0]/num_pos), end=' | ')
         loss = (loc_loss+cls_loss)/num_pos
         return loss

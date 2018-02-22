@@ -7,7 +7,7 @@ class SSDLoss(nn.Module):
     def __init__(self):
         super().__init__()
 
-    def _hard_negative_mining(self, cls_loss, pos, ratio=3, pure=5):
+    def _hard_negative_mining(self, cls_loss, pos, ratio=3, num_neg=5):
         '''
            Order the negative examples by decreasing loss, and return the
            first N of them, where N is three times the number of positive
@@ -25,7 +25,7 @@ class SSDLoss(nn.Module):
           cls_loss: (tensor) cross entroy loss between cls_preds and cls_targets, sized [N,#anchors].
           pos: (tensor) positive class mask, sized [N,#anchors].
           ratio: Ratio of negative examples to positive examples. This is a hyperparameter.
-          pure: Number of negative examples to return when there are no positive examples. This is a hyperparameter.
+          num_neg: Number of negative examples to return when there are no positive examples. This is a hyperparameter.
 
         Return:
           (tensor) negative indices, sized [N,#anchors].
@@ -35,10 +35,11 @@ class SSDLoss(nn.Module):
         _, idx = cls_loss.sort(1)  # sort by negative losses. Consequence: pays attention to largest losses first
         _, rank = idx.sort(1)      # [N,#anchors]
 
-        if pos.data.long().sum() == 0:
-            num_neg = pure + pos.long().sum(1)  # [N,]
-        else:
+        if pos.data.long().sum():
             num_neg = ratio * pos.long().sum(1)  # [N,]
+        else:
+            num_neg = num_neg if num_neg < len(cls_loss) else len(cls_loss)
+            num_neg = num_neg * (1 + pos.long().sum(1))  # [N,]
         neg = rank < num_neg[:, None]   # [N, #anchors]
         return neg
 
@@ -74,18 +75,18 @@ class SSDLoss(nn.Module):
         cls_loss = F.cross_entropy(cls_preds.view(-1, num_classes),
                                    cls_targets.view(-1), reduce=False)  # [N*#anchors,]
         cls_loss = cls_loss.view(batch_size, -1)
-        print("cls_loss.view", cls_loss)
+        #print("cls_loss.view", cls_loss)
         cls_loss[cls_targets < 0] = 0  # set ignored loss to 0  # Not sure when a class label would be less than one.
         neg = self._hard_negative_mining(cls_loss, pos)  # [N,#anchors]
         cls_loss = cls_loss[pos | neg].sum()
         num_neg = neg.data.long().sum()
         if num_pos:  # I'd prefer to divide by num_examples, but I'm minimizing the code changes for now.
-            cls_loss.data /= num_pos
-            loc_loss.data /= num_pos
+            cls_loss /= num_pos
+            loc_loss /= num_pos
         else:
-            cls_loss.data /= num_neg
+            cls_loss /= num_neg
 
         loss = loc_loss + cls_loss
-        print('loc_loss: {:.3f} | cls_loss: {:.3f} | loss: {:.3f}'.format(
-            loc_loss.data[0], cls_loss.data[0], loss.data[0]))
+        #print('loc_loss: {:.3f} | cls_loss: {:.3f} | loss: {:.3f}'.format(
+        #    loc_loss.data[0], cls_loss.data[0], loss.data[0]))
         return loss

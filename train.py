@@ -2,22 +2,22 @@ import os
 import os.path as osp
 import random
 import argparse
-from time import time
 
 import torch
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import torchvision.transforms as transforms
 from torch.autograd import Variable
+from tqdm import tqdm, trange
 
 from torchcv.models.ssd import SSDBoxCoder
-from torchcv.loss import SSDLoss
+#from torchcv.loss import SSDLoss
 from torchcv.datasets import ListDataset
 from torchcv.transforms import (resize, random_flip, random_paste, random_crop,
                                 random_distort)
 
 from torchcv.models.void_models import FPNSSD512_2
-#from torchcv.loss.void_losses import SSDLoss
+from torchcv.loss.void_losses import SSDLoss
 from utils import set_seed, get_log_prefix
 
 
@@ -33,7 +33,7 @@ VOIDS_ONLY = True
 RUN_NAME = 'save-based-on-trn'
 
 BATCH_SIZE = 16 if not args.test_code else 2
-NUM_EPOCHS = 200 if not args.test_code else 1
+NUM_EPOCHS = 200 if not args.test_code else 2
 IMG_SIZE = 512
 
 DEBUG = False  # Turn off shuffling and multiprocessing
@@ -53,7 +53,6 @@ img_dir_test = osp.join(IMAGE_DIR, VAL_VIDEO_ID)
 list_file_test = osp.join(LABEL_DIR, VAL_VIDEO_ID + voids + '.txt')
 print("Testing on:", list_file_test)
 shuffle = not DEBUG
-num_classes = 2
 os.makedirs(CKPT_DIR, exist_ok=True)
 
 # Model
@@ -104,74 +103,78 @@ trn_dl = torch.utils.data.DataLoader(trn_ds, batch_size=BATCH_SIZE,
                                      shuffle=shuffle, num_workers=NUM_WORKERS)
 val_dl = torch.utils.data.DataLoader(val_ds, batch_size=BATCH_SIZE,
                                      shuffle=False, num_workers=NUM_WORKERS)
+
+if args.test_code:
+    trn_ds.num_imgs = 10
+    val_ds.num_imgs = 10
+
 with torch.cuda.device(args.gpu):
     net.cuda()
-    cudnn.benchmark = True
-    criterion = SSDLoss(num_classes=2)
+    cudnn.benchmark = True  # WARNING: Don't use if using images w/ diff shapes  # TODO: Check for this condition automatically
+    criterion = SSDLoss()
     optimizer = optim.SGD(net.parameters(), lr=1e-3, momentum=0.9,
                           weight_decay=1e-4)
 
     def train(epoch):
-        print('\nEpoch: %d' % epoch)
         net.train()
         train_loss = 0
-        for batch_idx, (inputs, loc_targets, cls_targets) in enumerate(trn_dl):
+        tqdm_trn_dl = tqdm(trn_dl, desc="Train", ncols=0)
+        for batch_idx, batch in enumerate(tqdm_trn_dl):
+            inputs, loc_targets, cls_targets = batch
             inputs = Variable(inputs.cuda())
             loc_targets = Variable(loc_targets.cuda())
             cls_targets = Variable(cls_targets.cuda())
 
-            optimizer.zero_grad()
             loc_preds, cls_preds = net(inputs)
             loss = criterion(loc_preds, loc_targets, cls_preds, cls_targets)
+
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
             train_loss += loss.data[0]
-            print('train_loss: %.3f | avg_loss: %.3f [%d/%d]'
-                  % (loss.data[0], train_loss/(batch_idx+1), batch_idx+1,
-                     len(trn_dl)))
-            if args.test_code:
-                break
+            avg_loss = train_loss/(batch_idx+1)
+            tqdm_trn_dl.set_postfix(avg_loss="{:.2f}".format(avg_loss))
 
-    def test(epoch, log_prefix):
-        print('\nTest')
+    def validate(epoch, log_prefix, tqdm_epochs):
         net.eval()
-        test_loss = 0
-        for batch_idx, (inputs, loc_targets, cls_targets) in enumerate(val_dl):
+        val_loss = 0
+        tqdm_val_dl = tqdm(val_dl, desc="Validate", ncols=0)
+        for batch_idx, batch in enumerate(tqdm_val_dl):
+            inputs, loc_targets, cls_targets = batch
             inputs = Variable(inputs.cuda(), volatile=True)
             loc_targets = Variable(loc_targets.cuda())
             cls_targets = Variable(cls_targets.cuda())
 
             loc_preds, cls_preds = net(inputs)
             loss = criterion(loc_preds, loc_targets, cls_preds, cls_targets)
-            test_loss += loss.data[0]
-            print('test_loss: %.3f | avg_loss: %.3f [%d/%d]'
-                  % (loss.data[0], test_loss/(batch_idx+1), batch_idx+1,
-                     len(val_dl)))
-            if args.test_code:
-                test_loss = 0
-                break
+
+            val_loss += loss.data[0]
+            avg_loss = val_loss/(batch_idx+1)
+            tqdm_val_dl.set_postfix(avg_loss="{:.2f}".format(avg_loss))
+
+        if args.test_code:
+            val_loss = 0
 
         # Save checkpoint
         global best_loss
-        test_loss /= len(val_dl)
-        if test_loss < best_loss:
-            print('Saving..')
+        val_loss /= len(val_dl)
+        if val_loss < best_loss:
             state = {
-                'net': net.state_dict(),
-                'loss': test_loss,
+                'net': net.state_dict(),  # TODO: Switch to 'state_dict'
+                'loss': val_loss,
                 'epoch': epoch,
             }
             suffix = ('epoch-%03d' % epoch) + '.pth'
             ckpt_path = osp.join(CKPT_DIR, log_prefix + suffix)
             torch.save(state, ckpt_path)
-            print(ckpt_path)
-            best_loss = test_loss
+            tqdm_epochs.write(ckpt_path)
+            best_loss = val_loss
 
     suffix = '_' + RUN_NAME + '_' if RUN_NAME else ''
     log_prefix = get_log_prefix() + suffix
-    start = time()
-    for epoch in range(start_epoch, start_epoch+NUM_EPOCHS):
+    tqdm_epochs = trange(start_epoch, start_epoch+NUM_EPOCHS, desc="Epoch",
+                         ncols=0)
+    for epoch in tqdm_epochs:
         train(epoch)
-        test(epoch, log_prefix)
-    print("Minutes elapsed:", (time() - start)/60)
+        validate(epoch, log_prefix, tqdm_epochs)

@@ -6,7 +6,7 @@ def get_log_prefix(include_date=True):
         hash = subprocess.check_output(shlex.split(cmd)).strip()
         return hash
 
-    def get_datetime(tz='America/Los_Angeles', tformat="%Y-%m-%d--%H-%M-%S"):
+    def get_datetime(tz='America/Los_Angeles', tformat="%Y-%m-%d_%H-%M-%S"):
         from datetime import datetime
         import pytz
         timezone = pytz.timezone(tz)

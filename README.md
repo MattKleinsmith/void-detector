@@ -227,6 +227,12 @@ Requirements:
     - [x] Preserve original image shape in the demo
     - [x] Allow non-Docker in the demo
     - [x] Add GPU selection to the demo
+- [x] Improve torchcv's logging
+    - [x] Add ETA and duration
+    - [x] Remove unneeded messages
+    - [ ] Make checkpoint filenames more descriptive
+        - [x] Add git hash
+        - [ ] Add training configuration description
 - [ ] trials
     - [ ] config info (HPs etc)
     - [ ] final results
