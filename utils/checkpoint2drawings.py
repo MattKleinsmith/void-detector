@@ -49,12 +49,16 @@ def get_pred_boxes(img, img_size, net, cls_id=0):  # 0: void
     return boxes
 
 
-def draw_preds_and_save(img, img_size, boxes, out_dir, fname):
-    shape = (img_size, img_size)
-    img = cv2.resize(img, shape, interpolation=cv2.INTER_NEAREST)
-    for box in boxes:
-        box = list(np.int64(np.round(box)))
-        x1, y1, x2, y2 = box
+def draw_preds_and_save(img, model_inp_size, boxes, out_dir, fname):
+    h0, w0 = img.shape[:2]
+    h1, w1 = model_inp_size, model_inp_size
+    x_trans = w0/w1
+    y_trans = h0/h1
+    for x1, y1, x2, y2 in boxes:
+        x1 = np.int64(np.round(x1 * x_trans))
+        x2 = np.int64(np.round(x2 * x_trans))
+        y1 = np.int64(np.round(y1 * y_trans))
+        y2 = np.int64(np.round(y2 * y_trans))
         cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
     cv2.imwrite(osp.join(out_dir, fname), img)
 
@@ -80,7 +84,7 @@ else:
     video_id = video_ids[args.video_id]
 use_gt = "_gt" if args.draw_ground_truth else ''
 suffix = "_" + OUTPUT_DIR_SUFFIX if OUTPUT_DIR_SUFFIX else ''
-in_dir = args.input
+in_dir = osp.join(args.input, video_id)
 out_dir = osp.join(args.output, video_id + use_gt + suffix)
 if in_dir != "/inputs":  # i.e. if not Docker
     print("in_dir:", in_dir)
