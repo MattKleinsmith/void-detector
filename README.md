@@ -40,7 +40,7 @@ Requirements:
     - <a href='#2018-02-18-train-with-voidless-images'>2018-02-18: Train with voidless images</a>
     - <a href='#2018-02-19-understand-the-performance-drop'>2018-02-19: Understand the performance drop</a>
     - <a href='#2018-02-20-clean-the-code'>2018-02-20: Clean the code</a>
-    - <a href='#2018-02-21-set-up-postgresql-logging'>2018-02-21: Set up PostgreSQL logging</a>
+    - <a href='#2018-02-21-log-results-in-a-database'>2018-02-21: Log results in a database</a>
 - <a href='#ambitions'>Ambitions</a>
 
 # Goal
@@ -222,7 +222,8 @@ Requirements:
 - [x] Dockerize
     - [Automated build](https://hub.docker.com/r/matthewkleinsmith/void-detector/)
 
-## 2018-02-21: Set up PostgreSQL logging
+## 2018-02-21: Log results in a database
+- I'm starting with sqlite3. I'll add PostgreSQL as an option later to better handle multi-machine logging.
 - [x] Clean code a little more
     - [x] Preserve original image shape in the demo
     - [x] Allow non-Docker in the demo
@@ -234,12 +235,17 @@ Requirements:
         - [x] Add git hash
         - [x] Add training configuration description
 - [x] Add tests: `pytest tests/test.py`
-- [ ] trials
-    - [ ] config info (HPs etc)
-    - [ ] final results
-    - [ ] epoch-by-epoch results
-    - [ ] the evolution of void boxes on one or two images
-    - [ ] the evolution of non-void boxes on one or two images
+- [x] Add basic sqlite commands
+- [ ] Store the following:
+    - [ ] Training configuration information
+    - [ ] Final results
+    - [ ] Epoch-by-epoch results
+    - Bonus:
+        - [ ] The evolution of void boxes on one or two images
+        - [ ] The evolution of non-void boxes on one or two images
+- [ ] Clean up after tests
+    - [ ] Delete checkpoints
+    - [ ] Delete drawings
 
 # Ambitions
 
