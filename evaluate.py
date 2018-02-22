@@ -1,10 +1,10 @@
 import argparse
 import os.path as osp
-from time import time
 
 import torch
 import torch.nn.functional as F
 import torchvision.transforms as transforms
+from tqdm import tqdm
 
 from torch.autograd import Variable
 from torchcv.transforms import resize
@@ -54,8 +54,8 @@ with torch.cuda.device(args.gpu):
                           transform=transform)
     if args.test_code:
         dataset.num_imgs = 10
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False,
-                                             num_workers=2)
+    dl = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False,
+                                     num_workers=2)
 
     box_coder = SSDBoxCoder(net)
 
@@ -66,8 +66,8 @@ with torch.cuda.device(args.gpu):
     gt_labels = []
 
     def evaluate(net, dataset):
-        for i, (inputs, box_targets, label_targets) in enumerate(dataloader):
-            print('%d/%d' % (i, len(dataloader)))
+        tqdm_dl = tqdm(dl, desc="Evaluate", ncols=0)
+        for i, (inputs, box_targets, label_targets) in enumerate(tqdm_dl):
             gt_boxes.append(box_targets.squeeze(0))
             gt_labels.append(label_targets.squeeze(0))
 
@@ -85,6 +85,4 @@ with torch.cuda.device(args.gpu):
                                gt_labels, iou_thresh=0.5, use_07_metric=True)
         print(ap_map_dict)
 
-    start = time()
     evaluate(net, dataset)
-    print("Minutes elapsed:", (time() - start)/60)

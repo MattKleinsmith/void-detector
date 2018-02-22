@@ -29,11 +29,11 @@ args = parser.parse_args()
 TRN_VIDEO_ID = "20180215_185312"
 #VAL_VIDEO_ID = "20180215_190227"
 VAL_VIDEO_ID = TRN_VIDEO_ID
-VOIDS_ONLY = True
-RUN_NAME = 'save-based-on-trn'
+VOIDS_ONLY = False
+RUN_NAME = 'save-based-on-trn_voidless-included'
 
 BATCH_SIZE = 16 if not args.test_code else 2
-NUM_EPOCHS = 200 if not args.test_code else 2
+NUM_EPOCHS = 300 if not args.test_code else 2
 IMG_SIZE = 512
 
 DEBUG = False  # Turn off shuffling and multiprocessing
@@ -44,6 +44,7 @@ IMAGE_DIR = "../../data/voids"
 LABEL_DIR = "../void-detector/labels"
 CKPT_DIR = "checkpoints"
 
+print("Run name:", RUN_NAME)
 set_seed(SEED)
 img_dir = osp.join(IMAGE_DIR, TRN_VIDEO_ID)
 voids = "_voids" if VOIDS_ONLY else ''
@@ -112,12 +113,13 @@ with torch.cuda.device(args.gpu):
     net.cuda()
     cudnn.benchmark = True  # WARNING: Don't use if using images w/ diff shapes  # TODO: Check for this condition automatically
     criterion = SSDLoss()
-    optimizer = optim.SGD(net.parameters(), lr=1e-3, momentum=0.9,
+    lr = 1e-3
+    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9,
                           weight_decay=1e-4)
 
     def train(epoch):
         net.train()
-        train_loss = 0
+        trn_loss = 0
         tqdm_trn_dl = tqdm(trn_dl, desc="Train", ncols=0)
         for batch_idx, batch in enumerate(tqdm_trn_dl):
             inputs, loc_targets, cls_targets = batch
@@ -132,11 +134,13 @@ with torch.cuda.device(args.gpu):
             loss.backward()
             optimizer.step()
 
-            train_loss += loss.data[0]
-            avg_loss = train_loss/(batch_idx+1)
-            tqdm_trn_dl.set_postfix(avg_loss="{:.2f}".format(avg_loss))
+            trn_loss += loss.data[0]
+            avg_loss = trn_loss/(batch_idx+1)
+            # tqdm_trn_dl.set_postfix(avg_loss="{:.2f}".format(avg_loss))
 
-    def validate(epoch, log_prefix, tqdm_epochs):
+        return avg_loss
+
+    def validate(epoch, log_prefix, run_name, tqdm_epochs, trn_avg_loss):
         net.eval()
         val_loss = 0
         tqdm_val_dl = tqdm(val_dl, desc="Validate", ncols=0)
@@ -151,7 +155,7 @@ with torch.cuda.device(args.gpu):
 
             val_loss += loss.data[0]
             avg_loss = val_loss/(batch_idx+1)
-            tqdm_val_dl.set_postfix(avg_loss="{:.2f}".format(avg_loss))
+            # tqdm_val_dl.set_postfix(avg_loss="{:.2f}".format(avg_loss))
 
         if args.test_code:
             val_loss = 0
@@ -165,16 +169,18 @@ with torch.cuda.device(args.gpu):
                 'loss': val_loss,
                 'epoch': epoch,
             }
-            suffix = ('epoch-%03d' % epoch) + '.pth'
+            values = [epoch, trn_avg_loss, avg_loss, lr]
+            layout = "_epochs-{:03d}_trn_loss-{:.6f}_val_loss-{:.6f}"
+            layout += "_lr-{:.2E}"
+            suffix = layout.format(*values) + run_name + '.pth'
             ckpt_path = osp.join(CKPT_DIR, log_prefix + suffix)
             torch.save(state, ckpt_path)
             tqdm_epochs.write(ckpt_path)
             best_loss = val_loss
 
-    suffix = '_' + RUN_NAME + '_' if RUN_NAME else ''
-    log_prefix = get_log_prefix() + suffix
+    log_prefix = get_log_prefix()
     tqdm_epochs = trange(start_epoch, start_epoch+NUM_EPOCHS, desc="Epoch",
                          ncols=0)
     for epoch in tqdm_epochs:
-        train(epoch)
-        validate(epoch, log_prefix, tqdm_epochs)
+        trn_avg_loss = train(epoch)
+        validate(epoch, log_prefix, RUN_NAME, tqdm_epochs, trn_avg_loss)

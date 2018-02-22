@@ -230,9 +230,9 @@ Requirements:
 - [x] Improve torchcv's logging
     - [x] Add ETA and duration
     - [x] Remove unneeded messages
-    - [ ] Make checkpoint filenames more descriptive
+    - [x] Make checkpoint filenames more descriptive
         - [x] Add git hash
-        - [ ] Add training configuration description
+        - [x] Add training configuration description
 - [ ] trials
     - [ ] config info (HPs etc)
     - [ ] final results
