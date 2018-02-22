@@ -22,7 +22,7 @@ if args.dockerless:
     cmd += " --input {} --output {} --gpu {}".format(*values)
 else:
     print("Host directories:\n{2}{0}\n{2}{1}".format(in_dir, out_dir, ' '*4))
-    cmd = "docker run --rm --runtime=nvidia --ipc=host"
+    cmd = "docker run --rm -it --runtime=nvidia --ipc=host"
     cmd += " -v {}:/inputs -v {}:/outputs -e GPU_ID={}".format(*values)
     cmd += " matthewkleinsmith/void-detector"
 subprocess.run(cmd.split())

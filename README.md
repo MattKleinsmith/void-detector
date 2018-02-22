@@ -6,11 +6,23 @@ Detect voids in grocery store shelves.
 
 The above are predictions from the first model trained. The images are from the test set.
 
-## Docker demo
-
-`python demo.py IMAGE_DIR`
+## Demo
 
 The demo will draw bounding boxes on copies of the given images, similar to the GIF above. The results will be stored in `IMAGE_DIR/void-detector-outputs/`.
+
+### Dockerless
+
+`python demo.py IMAGE_DIR --dockerless`
+
+Requirements:
+- [Anaconda 5, Python 3.6 version](https://www.anaconda.com/download/#linux)
+- pip install opencv-python
+- conda install pytorch torchvision cuda90 -c pytorch
+- pip install tqdm
+
+### Docker
+
+`python demo.py IMAGE_DIR`
 
 Requirements:
 
@@ -211,10 +223,10 @@ Requirements:
     - [Automated build](https://hub.docker.com/r/matthewkleinsmith/void-detector/)
 
 ## 2018-02-21: Set up PostgreSQL logging
-- [ ] Clean code a little more
+- [x] Clean code a little more
     - [x] Preserve original image shape in the demo
-    - [ ] Allow non-Docker in the demo
-    - [ ] Add GPU selection to the demo
+    - [x] Allow non-Docker in the demo
+    - [x] Add GPU selection to the demo
 - [ ] trials
     - [ ] config info (HPs etc)
     - [ ] final results
