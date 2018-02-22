@@ -1,3 +1,10 @@
+def videoid2videoname(i):
+    id2name = {-1: '',
+               0: '20180215_185312',
+               1: '20180215_190227'}
+    return id2name[i]
+
+
 def get_log_prefix(include_date=True):
     def git_hash():
         import shlex

@@ -17,6 +17,7 @@ from tqdm import tqdm
 from torchcv.models.ssd import SSDBoxCoder
 
 from torchcv.models.void_models import FPNSSD512_2
+from utils import videoid2videoname
 
 
 def get_ground_truth(line):
@@ -71,6 +72,7 @@ parser.add_argument('--checkpoint', default='checkpoints/2018-02-16_first-model.
 parser.add_argument('--video-id', default=-1, type=int, choices=[-1, 0, 1])  # noqa
 parser.add_argument('--draw-ground-truth', action='store_true')  # noqa
 parser.add_argument('--gpu', default='0', type=int, help='GPU ID (nvidia-smi)')  # noqa
+parser.add_argument('--test-code', action='store_true', help='Use a small sample of the data.')  # noqa
 args = parser.parse_args()
 
 OUTPUT_DIR_SUFFIX = ''  # Make this whatever you'd like
@@ -78,15 +80,11 @@ IMG_SIZE = 512  # TODO: Use orginal dimensions of each image
 LABEL_DIR = "labels"
 CLS_ID = 0  # void
 
-if args.video_id == -1:
-    video_id = ''
-else:
-    video_ids = {0: '20180215_185312', 1: '20180215_190227'}
-    video_id = video_ids[args.video_id]
+video_name = videoid2videoname(args.video_id)
 use_gt = "_gt" if args.draw_ground_truth else ''
 suffix = "_" + OUTPUT_DIR_SUFFIX if OUTPUT_DIR_SUFFIX else ''
-in_dir = osp.join(args.input, video_id)
-out_dir = osp.join(args.output, video_id + use_gt + suffix)
+in_dir = osp.join(args.input, video_name)
+out_dir = osp.join(args.output, video_name + use_gt + suffix)
 if in_dir != "/inputs":  # i.e. if not Docker
     print("in_dir:", in_dir)
     print("out_dir:", out_dir if out_dir[-1] != '/' else out_dir[:-1])
@@ -107,10 +105,11 @@ with torch.cuda.device(args.gpu):
         ])
 
     if args.draw_ground_truth:
-        ground_truth_txt = osp.join(LABEL_DIR, video_id + ".txt")
+        ground_truth_txt = osp.join(LABEL_DIR, video_name + ".txt")
         with open(ground_truth_txt) as f:
             ground_truth_lines = f.readlines()
-        tqdm_lines = tqdm(ground_truth_lines, ncols=80)
+        n = 10 if args.test_code else len(ground_truth_lines)
+        tqdm_lines = tqdm(ground_truth_lines[:n], ncols=80)
         for line in tqdm_lines:
             fname, gt_boxes, gt_labels = get_ground_truth(line)
             gt_boxes = [box for i, box in enumerate(gt_boxes)
@@ -125,7 +124,8 @@ with torch.cuda.device(args.gpu):
     else:
         fpaths = glob(in_dir + "/*.jpg")
         fpaths.sort()
-        tqdm_fpaths = tqdm(fpaths, ncols=80)
+        n = 10 if args.test_code else len(fpaths)
+        tqdm_fpaths = tqdm(fpaths[:n], ncols=80)
         for fpath in tqdm_fpaths:
             fname = fpath.split('/')[-1]
             tqdm_fpaths.set_postfix(fname=fname)

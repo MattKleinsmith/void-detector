@@ -13,13 +13,14 @@ from torchcv.evaluations.voc_eval import voc_eval
 from torchcv.models.ssd import SSDBoxCoder
 
 from torchcv.models.void_models import FPNSSD512_2
+from utils import videoid2videoname
 
 
 parser = argparse.ArgumentParser(description='PyTorch SSD Evaluation')
 parser.add_argument('--gpu', default='0', type=int, help='GPU ID (nvidia-smi)')  # noqa
 parser.add_argument('--test-code', action='store_true', help='Use a small sample of the data.')  # noqa
 parser.add_argument('--checkpoint', default='checkpoints/2018-02-16_first-model.pth', type=str, help='Checkpoint path')  # noqa
-parser.add_argument('--video-id', default='20180215_185312', type=str, choices=['20180215_185312', '20180215_190227'])  # noqa
+parser.add_argument('--video-id', default=0, type=int, choices=[-1, 0, 1])  # noqa
 args = parser.parse_args()
 
 IMG_SIZE = 512
@@ -28,8 +29,9 @@ LABEL_DIR = "../void-detector/labels"
 VOIDS_ONLY = False
 voids = "_voids" if VOIDS_ONLY else ''
 
-img_dir = osp.join(IMAGE_DIR, args.video_id)
-list_file = osp.join(LABEL_DIR, args.video_id + voids + '.txt')
+video_name = videoid2videoname(args.video_id)
+img_dir = osp.join(IMAGE_DIR, video_name)
+list_file = osp.join(LABEL_DIR, video_name + voids + '.txt')
 
 print('Loading model..')
 net = FPNSSD512_2()

@@ -11,26 +11,28 @@ from torch.autograd import Variable
 from tqdm import tqdm, trange
 
 from torchcv.models.ssd import SSDBoxCoder
-#from torchcv.loss import SSDLoss
 from torchcv.datasets import ListDataset
 from torchcv.transforms import (resize, random_flip, random_paste, random_crop,
                                 random_distort)
 
 from torchcv.models.void_models import FPNSSD512_2
 from torchcv.loss.void_losses import SSDLoss
-from utils import set_seed, get_log_prefix
+from utils import set_seed, get_log_prefix, videoid2videoname
 
 
 parser = argparse.ArgumentParser(description='PyTorch SSD Training')
 parser.add_argument('--gpu', default='0', type=int, help='GPU ID (nvidia-smi)')  # noqa
 parser.add_argument('--test-code', action='store_true', help='Only one epoch, only one batch, etc.')  # noqa
+parser.add_argument('--video-id', default=0, type=int, choices=[-1, 0, 1])  # noqa
+parser.add_argument('--include-voidless', action='store_true', help='Include voidless images')  # noqa
 args = parser.parse_args()
 
-TRN_VIDEO_ID = "20180215_185312"
-#VAL_VIDEO_ID = "20180215_190227"
+video_name = videoid2videoname(args.video_id)
+TRN_VIDEO_ID = video_name
 VAL_VIDEO_ID = TRN_VIDEO_ID
-VOIDS_ONLY = False
-RUN_NAME = 'save-based-on-trn_voidless-included'
+RUN_NAME = 'save-based-on-trn'
+if args.include_voidless:
+    RUN_NAME = "voidless-included_" + RUN_NAME
 
 BATCH_SIZE = 16 if not args.test_code else 2
 NUM_EPOCHS = 300 if not args.test_code else 2
@@ -47,7 +49,7 @@ CKPT_DIR = "checkpoints"
 print("Run name:", RUN_NAME)
 set_seed(SEED)
 img_dir = osp.join(IMAGE_DIR, TRN_VIDEO_ID)
-voids = "_voids" if VOIDS_ONLY else ''
+voids = "_voids" if not args.include_voidless else ''
 list_file = osp.join(LABEL_DIR, TRN_VIDEO_ID + voids + '.txt')
 print("Training on:", list_file)
 img_dir_test = osp.join(IMAGE_DIR, VAL_VIDEO_ID)
@@ -169,9 +171,9 @@ with torch.cuda.device(args.gpu):
                 'loss': val_loss,
                 'epoch': epoch,
             }
-            values = [epoch, trn_avg_loss, avg_loss, lr]
+            values = [epoch, trn_avg_loss, avg_loss, lr, BATCH_SIZE, IMG_SIZE]
             layout = "_epochs-{:03d}_trn_loss-{:.6f}_val_loss-{:.6f}"
-            layout += "_lr-{:.2E}"
+            layout += "_lr-{:.2E}_bs-{:03d}_sz-{}_"
             suffix = layout.format(*values) + run_name + '.pth'
             ckpt_path = osp.join(CKPT_DIR, log_prefix + suffix)
             torch.save(state, ckpt_path)
