@@ -2,8 +2,7 @@ import sqlite3
 
 
 def connect_and_execute(sqlite_path, cmd, parameters=None):
-    conn = sqlite3.connect(sqlite_path)
-    with conn as cur:
+    with sqlite3.connect(sqlite_path) as cur:
         if parameters:
             cur.execute(cmd, parameters)
         else:
@@ -62,12 +61,55 @@ def insert_into_table(sqlite_path, table_name, key_value_pairs):
     connect_and_execute(sqlite_path, cmd, parameters)
 
 
+def get_trial_id(sqlite_path):
+    cmd = "SELECT MAX(trial_id) FROM trials"
+    conn = sqlite3.connect(sqlite_path)
+    cur = conn.cursor()
+    try:
+        cur.execute(cmd)
+        max_value = cur.fetchone()[0]
+        return max_value + 1
+    except sqlite3.OperationalError:
+        return 0
+    conn.close()
+
+
+def save_stats(sqlite_path, stats):
+    try:
+        cmd = """
+              CREATE TABLE trials (
+                  trial_id INTEGER,
+                  datetime TEXT,
+                  git TEXT,
+                  epoch INTEGER,
+                  trn_avg_loss REAL,
+                  val_avg_loss REAL,
+                  lr REAL,
+                  batch_size INTEGER,
+                  img_size INTEGER,
+                  seed INTEGER,
+                  PRIMARY KEY (trial_id, epoch))
+              """
+        connect_and_execute(sqlite_path, cmd)
+    except sqlite3.OperationalError:
+        pass
+    insert_into_table(sqlite_path, table_name="trials",
+                      key_value_pairs=stats)
+
+
 if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--alter', action='store_true', help='Alter table')  # noqa
+    args = parser.parse_args()
     sqlite_path = "database.sqlite3"
-    cmd = """
-          CREATE TABLE trials (
-              trial_id INTEGER PRIMARY KEY,
-              datetime TEXT,
-              epochs INTEGER)
-          """
-    connect_and_execute(sqlite_path, cmd)
+    if args.alter:
+        cmd = "ALTER TABLE trials ADD seed INTEGER"
+        connect_and_execute(sqlite_path, cmd)
+    else:
+        stats = dict(
+            trial_id=-1,
+            datetime=-1,
+            git=-1,
+            epoch=-1)
+        save_stats(sqlite_path, stats)

@@ -40,7 +40,9 @@ Requirements:
     - <a href='#2018-02-18-train-with-voidless-images'>2018-02-18: Train with voidless images</a>
     - <a href='#2018-02-19-understand-the-performance-drop'>2018-02-19: Understand the performance drop</a>
     - <a href='#2018-02-20-clean-the-code'>2018-02-20: Clean the code</a>
-    - <a href='#2018-02-21-log-results-in-a-database'>2018-02-21: Log results in a database</a>
+    - <a href='#2018-02-21-log-results-in-a-database-part-1'>2018-02-21: Log results in a database (part 1)</a>
+    - <a href='#2018-02-22-take-a-break'>2018-02-22: (Take a break)</a>
+    - <a href='#2018-02-23-log-results-in-a-database-part-2'>2018-02-23: Log results in a database (part 2)</a>
 - <a href='#ambitions'>Ambitions</a>
 
 # Goal
@@ -93,14 +95,6 @@ Requirements:
     - [Yes] Complete void
     - [Yes] Void with product behind it
     - [Not yet] Void with product in front of it
-- [ ] Create train, validation, and test sets
-  - Consider splitting by aisle
-  - Consider splitting by store
-    - If so, collect data from two more stores
-- [ ] Resize data for model input
-  - Consider downsampling or cropping
-- [ ] Redefine model as needed
-- [ ] Train, tune HPs, test
 
 ## 2018-02-16: Train model
 - [x] Make the data, model, and training pipeline compatible
@@ -157,12 +151,6 @@ Requirements:
             - The predictions are in red and the ground truth is in green.
             - The model detected some voids I missed.
             - When labeling the test set, I tended to cut large voids into smaller voids with sizes equal to the sizes of nearby products. I didn't do this as often when labeling the training set. This difference in ground truth is likely responsible for a large loss in precision. If so, this shows the importance of documenting changes in the labeling procedure, and shows a benefit of standarizing the labeling procedure.
-- [ ] Improve torchcv's logging
-    - [ ] Add ETA and duration
-    - [ ] Remove unneeded messages
-    - [ ] Make checkpoint filenames more descriptive
-        - [ ] Add git hash
-        - [ ] Add training configuration description
 
 ## 2018-02-18: Train with voidless images
 - [x] Figure out how to train with voidless images
@@ -222,7 +210,7 @@ Requirements:
 - [x] Dockerize
     - [Automated build](https://hub.docker.com/r/matthewkleinsmith/void-detector/)
 
-## 2018-02-21: Log results in a database
+## 2018-02-21: Log results in a database (part 1)
 - I'm starting with sqlite3. I'll add PostgreSQL as an option later to better handle multi-machine logging.
 - [x] Clean code a little more
     - [x] Preserve original image shape in the demo
@@ -236,6 +224,13 @@ Requirements:
         - [x] Add training configuration description
 - [x] Add tests: `pytest tests`
 - [x] Add basic sqlite commands
+
+## 2018-02-22: (Take a break)
+
+## 2018-02-23: Log results in a database (part 2)
+- [x] Clean up after code tests
+    - [x] Delete checkpoints
+    - [x] Delete drawings
 - [ ] Store the following:
     - [ ] Training configuration information
     - [ ] Final results
@@ -243,9 +238,6 @@ Requirements:
     - Bonus:
         - [ ] The evolution of void boxes on one or two images
         - [ ] The evolution of non-void boxes on one or two images
-- [ ] Clean up after tests
-    - [ ] Delete checkpoints
-    - [ ] Delete drawings
 
 # Ambitions
 

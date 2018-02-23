@@ -17,7 +17,9 @@ from torchcv.transforms import (resize, random_flip, random_paste, random_crop,
 
 from torchcv.models.void_models import FPNSSD512_2
 from torchcv.loss.void_losses import SSDLoss
-from utils import set_seed, get_log_prefix, videoid2videoname
+from utils import (set_seed, get_log_prefix, videoid2videoname, git_hash,
+                   get_datetime)
+from utils.sql import get_trial_id, save_stats, connect_and_execute
 
 
 parser = argparse.ArgumentParser(description='PyTorch SSD Training')
@@ -51,12 +53,17 @@ set_seed(SEED)
 img_dir = osp.join(IMAGE_DIR, TRN_VIDEO_ID)
 voids = "_voids" if not args.include_voidless else ''
 list_file = osp.join(LABEL_DIR, TRN_VIDEO_ID + voids + '.txt')
-print("Training on:", list_file)
+print("Training set:", list_file)
 img_dir_test = osp.join(IMAGE_DIR, VAL_VIDEO_ID)
 list_file_test = osp.join(LABEL_DIR, VAL_VIDEO_ID + voids + '.txt')
-print("Testing on:", list_file_test)
+print("Validation set:", list_file_test)
 shuffle = not DEBUG
 os.makedirs(CKPT_DIR, exist_ok=True)
+
+sqlite_path = "database.sqlite3"
+trial_id = get_trial_id(sqlite_path) if not args.test_code else -1
+git = git_hash()
+print("Trial ID:", trial_id)
 
 # Model
 print('==> Building model..')
@@ -156,7 +163,7 @@ with torch.cuda.device(args.gpu):
             loss = criterion(loc_preds, loc_targets, cls_preds, cls_targets)
 
             val_loss += loss.data[0]
-            avg_loss = val_loss/(batch_idx+1)
+            val_avg_loss = val_loss/(batch_idx+1)
             # tqdm_val_dl.set_postfix(avg_loss="{:.2f}".format(avg_loss))
 
         if args.test_code:
@@ -171,7 +178,7 @@ with torch.cuda.device(args.gpu):
                 'loss': val_loss,
                 'epoch': epoch,
             }
-            values = [epoch, trn_avg_loss, avg_loss, lr, BATCH_SIZE, IMG_SIZE]
+            values = [epoch, trn_avg_loss, val_avg_loss, lr, BATCH_SIZE, IMG_SIZE]
             layout = "_epochs-{:03d}_trn_loss-{:.6f}_val_loss-{:.6f}"
             layout += "_lr-{:.2E}_bs-{:03d}_sz-{}_"
             suffix = layout.format(*values) + run_name + '.pth'
@@ -179,10 +186,27 @@ with torch.cuda.device(args.gpu):
             torch.save(state, ckpt_path)
             tqdm_epochs.write(ckpt_path)
             best_loss = val_loss
-
+            if args.test_code:
+                os.remove(ckpt_path)
+        # Save stats to database
+        stats = dict(
+            trial_id=trial_id,
+            datetime=get_datetime(),
+            git=git,
+            epoch=epoch,
+            trn_avg_loss=trn_avg_loss,
+            val_avg_loss=val_avg_loss,
+            lr=lr,
+            batch_size=BATCH_SIZE,
+            img_size=IMG_SIZE,
+            seed=SEED)
+        save_stats(sqlite_path, stats)
     log_prefix = get_log_prefix()
     tqdm_epochs = trange(start_epoch, start_epoch+NUM_EPOCHS, desc="Epoch",
                          ncols=0)
     for epoch in tqdm_epochs:
         trn_avg_loss = train(epoch)
         validate(epoch, log_prefix, RUN_NAME, tqdm_epochs, trn_avg_loss)
+    if args.test_code and True:
+        cmd = "DELETE FROM trials WHERE trial_id = -1"
+        connect_and_execute(sqlite_path, cmd)

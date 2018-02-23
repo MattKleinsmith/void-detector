@@ -62,9 +62,12 @@ WORKDIR void-detector
 
 RUN python utils/download_model.py
 
-#############
-## Command ##
-#############
+##########
+## Misc ##
+##########
+
+# To display the time in bash prompts
+RUN echo "PS1=\"[\D{%T}] \"$PS1" >> ~/.bashrc
 
 ENV TEST_CODE=""
 

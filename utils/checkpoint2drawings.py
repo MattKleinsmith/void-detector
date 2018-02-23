@@ -50,7 +50,7 @@ def get_pred_boxes(img, img_size, net, cls_id=0):  # 0: void
     return boxes
 
 
-def draw_preds_and_save(img, model_inp_size, boxes, out_dir, fname):
+def draw_preds_and_save(img, model_inp_size, boxes, out_dir, fname, test_code):
     h0, w0 = img.shape[:2]
     h1, w1 = model_inp_size, model_inp_size
     x_trans = w0/w1
@@ -61,7 +61,10 @@ def draw_preds_and_save(img, model_inp_size, boxes, out_dir, fname):
         y1 = np.int64(np.round(y1 * y_trans))
         y2 = np.int64(np.round(y2 * y_trans))
         cv2.rectangle(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
-    cv2.imwrite(osp.join(out_dir, fname), img)
+    fpath = osp.join(out_dir, fname)
+    cv2.imwrite(fpath, img)
+    if test_code:
+        os.remove(fpath)
 
 
 parser = argparse.ArgumentParser(description='Draws bounding box predictions')
@@ -120,7 +123,8 @@ with torch.cuda.device(args.gpu):
             img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
             for x1, y1, x2, y2 in gt_boxes:
                 cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            draw_preds_and_save(img, IMG_SIZE, pred_boxes, out_dir, fname)
+            draw_preds_and_save(img, IMG_SIZE, pred_boxes, out_dir, fname,
+                                args.test_code)
     else:
         fpaths = glob(in_dir + "/*.jpg")
         fpaths.sort()
@@ -132,4 +136,5 @@ with torch.cuda.device(args.gpu):
             img = Image.open(osp.join(in_dir, fname))
             pred_boxes = get_pred_boxes(img, IMG_SIZE, net, cls_id=CLS_ID)
             img = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
-            draw_preds_and_save(img, IMG_SIZE, pred_boxes, out_dir, fname)
+            draw_preds_and_save(img, IMG_SIZE, pred_boxes, out_dir, fname,
+                                args.test_code)
