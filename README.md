@@ -234,7 +234,7 @@ Requirements:
     - [x] Make checkpoint filenames more descriptive
         - [x] Add git hash
         - [x] Add training configuration description
-- [x] Add tests: `pytest tests/test.py`
+- [x] Add tests: `pytest tests`
 - [x] Add basic sqlite commands
 - [ ] Store the following:
     - [ ] Training configuration information
