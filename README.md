@@ -6,6 +6,21 @@ Detect voids in grocery store shelves.
 
 The above are predictions from the first model trained. The images are from the test set.
 
+## Table of Contents
+- <a href='#demo'>Demo</a>
+- <a href='#goal'>Goal</a>
+- <a href='#log'>Log</a>
+    - <a href='#2018-02-15-collect-and-label-data'>2018-02-15: Collect and label data</a>
+    - <a href='#2018-02-16-train-model'>2018-02-16: Train model</a>
+    - <a href='#2018-02-17-inspect-and-report-results'>2018-02-17: Inspect and report results</a>
+    - <a href='#2018-02-18-train-with-voidless-images'>2018-02-18: Train with voidless images</a>
+    - <a href='#2018-02-19-understand-the-performance-drop'>2018-02-19: Understand the performance drop</a>
+    - <a href='#2018-02-20-clean-the-code'>2018-02-20: Clean the code</a>
+    - <a href='#2018-02-21-log-results-in-a-database-part-1'>2018-02-21: Log results in a database (part 1)</a>
+    - <a href='#2018-02-22-take-a-break'>2018-02-22: (Take a break)</a>
+    - <a href='#2018-02-23-log-results-in-a-database-part-2'>2018-02-23: Log results in a database (part 2)</a>
+- <a href='#ambitions'>Ambitions</a>
+
 ## Demo
 
 The demo will draw bounding boxes on copies of the given images, similar to the GIF above. The results will be stored in `IMAGE_DIR/void-detector-outputs/`.
@@ -30,20 +45,6 @@ Requirements:
 - Access to the Docker image
     - Option 1: Obtain read permissions for the Docker image at matthewkleinsmith/void-detector
     - Option 2: Build the image with `docker build -t matthewkleinsmith/void-detector docker/.`
-
-## Table of Contents
-- <a href='#goal'>Goal</a>
-- <a href='#log'>Log</a>
-    - <a href='#2018-02-15-collect-and-label-data'>2018-02-15: Collect and label data</a>
-    - <a href='#2018-02-16-train-model'>2018-02-16: Train model</a>
-    - <a href='#2018-02-17-inspect-and-report-results'>2018-02-17: Inspect and report results</a>
-    - <a href='#2018-02-18-train-with-voidless-images'>2018-02-18: Train with voidless images</a>
-    - <a href='#2018-02-19-understand-the-performance-drop'>2018-02-19: Understand the performance drop</a>
-    - <a href='#2018-02-20-clean-the-code'>2018-02-20: Clean the code</a>
-    - <a href='#2018-02-21-log-results-in-a-database-part-1'>2018-02-21: Log results in a database (part 1)</a>
-    - <a href='#2018-02-22-take-a-break'>2018-02-22: (Take a break)</a>
-    - <a href='#2018-02-23-log-results-in-a-database-part-2'>2018-02-23: Log results in a database (part 2)</a>
-- <a href='#ambitions'>Ambitions</a>
 
 # Goal
 
