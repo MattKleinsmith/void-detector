@@ -345,6 +345,7 @@ def calc_detection_voc_ap(prec, rec, use_07_metric=False):
                     p = np.max(np.nan_to_num(prec[l])[rec[l] >= t])
                 ap[l] += p / 11
         else:
+            # https://en.wikipedia.org/wiki/Information_retrieval#Average_precision
             # correct AP calculation
             # first append sentinel values at the end
             mpre = np.concatenate(([0], np.nan_to_num(prec[l]), [0]))

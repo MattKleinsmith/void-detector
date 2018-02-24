@@ -19,6 +19,7 @@ The above are predictions from the first model trained. The images are from the 
     - <a href='#2018-02-21-log-results-in-a-database-part-1'>2018-02-21: Log results in a database (part 1)</a>
     - <a href='#2018-02-22-take-a-break'>2018-02-22: (Take a break)</a>
     - <a href='#2018-02-23-log-results-in-a-database-part-2'>2018-02-23: Log results in a database (part 2)</a>
+    - <a href='#2018-02-24-log-results-in-a-database-part-3'>2018-02-24: Log results in a database (part 3)</a>
 - <a href='#ambitions'>Ambitions</a>
 
 ## Demo
@@ -233,12 +234,17 @@ Requirements:
     - [x] Delete checkpoints
     - [x] Delete drawings
 - [ ] Store the following:
-    - [ ] Training configuration information
+    - [x] Training configuration information
     - [ ] Final results
     - [ ] Epoch-by-epoch results
     - Bonus:
         - [ ] The evolution of void boxes on one or two images
         - [ ] The evolution of non-void boxes on one or two images
+
+## 2018-02-24: Log results in a database (part 3)
+- [ ] Store the following:
+    - [x] Final results
+    - [ ] Epoch-by-epoch results
 
 # Ambitions
 

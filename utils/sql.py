@@ -82,13 +82,14 @@ def save_stats(sqlite_path, stats):
                   datetime TEXT,
                   git TEXT,
                   epoch INTEGER,
-                  trn_avg_loss REAL,
-                  val_avg_loss REAL,
+                  avg_prec REAL,
+                  trn_loss REAL,
+                  val_loss REAL,
                   lr REAL,
                   batch_size INTEGER,
                   img_size INTEGER,
                   seed INTEGER,
-                  PRIMARY KEY (trial_id, epoch))
+                  PRIMARY KEY (trial_id, datetime))
               """
         connect_and_execute(sqlite_path, cmd)
     except sqlite3.OperationalError:
