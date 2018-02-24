@@ -6,24 +6,29 @@ import os.path as osp
 import shutil
 import subprocess
 
-start = 1080
-end = 2310
-fps = 1
-include_pred = True
+ANDROID_FILES = False
 
-fnames = glob('*.jpg')
-ids = [int(f.split('_')[-1][:-4]) for f in fnames]
-interval = [i for i in ids if i >= start and i <= end]
-prefix = '_'.join(fnames[0].split('_')[:2])
-fnames = [prefix + '_%06d.jpg' % i for i in ids if i in interval]
+if ANDROID_FILES:
+    start = 1080
+    end = 2310
+    include_pred = True
 
-gif_dir = 'gif'
-os.makedirs(gif_dir, exist_ok=True)
-for fname in fnames:
-    shutil.copyfile(fname, osp.join(gif_dir, fname))
+    fnames = glob('*.jpg')
+    ids = [int(f.split('_')[-1][:-4]) for f in fnames]
+    interval = [i for i in ids if i >= start and i <= end]
+    prefix = '_'.join(fnames[0].split('_')[:2])
+    fnames = [prefix + '_%06d.jpg' % i for i in ids if i in interval]
 
-delay = 100/fps
+    gif_dir = 'gif'
+    os.makedirs(gif_dir, exist_ok=True)
+    for fname in fnames:
+        shutil.copyfile(fname, osp.join(gif_dir, fname))
+else:
+    include_pred = False
+    gif_dir = './'
+fps = 4
 video_id = osp.basename(os.getcwd())
+delay = 100/fps
 pred = "_pred" if include_pred else ''
 values = delay, gif_dir, video_id, fps, pred
 layout = "convert -delay {0} -loop 0 {1}/*.jpg {1}/{2}_{3}fps{4}.gif"

@@ -85,6 +85,7 @@ def box_iou(box1, box2):
     iou = inter / (area1[:,None] + area2 - inter)
     return iou
 
+
 def box_nms(bboxes, scores, threshold=0.5, mode='union'):
     '''Non maximum suppression.
 
@@ -100,14 +101,12 @@ def box_nms(bboxes, scores, threshold=0.5, mode='union'):
     Reference:
       https://github.com/rbgirshick/py-faster-rcnn/blob/master/lib/nms/py_cpu_nms.py
     '''
-    x1 = bboxes[:,0]
-    y1 = bboxes[:,1]
-    x2 = bboxes[:,2]
-    y2 = bboxes[:,3]
-
+    x1 = bboxes[:, 0]
+    y1 = bboxes[:, 1]
+    x2 = bboxes[:, 2]
+    y2 = bboxes[:, 3]
     areas = (x2-x1) * (y2-y1)
     _, order = scores.sort(0, descending=True)
-
     keep = []
     while order.numel() > 0:
         i = order[0]
@@ -132,7 +131,7 @@ def box_nms(bboxes, scores, threshold=0.5, mode='union'):
         else:
             raise TypeError('Unknown nms mode: %s.' % mode)
 
-        ids = (ovr<=threshold).nonzero().squeeze()
+        ids = (ovr <= threshold).nonzero().squeeze()
         if ids.numel() == 0:
             break
         order = order[ids+1]

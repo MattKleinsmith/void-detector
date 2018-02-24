@@ -178,15 +178,12 @@ with torch.cuda.device(args.gpu):
             layout += "_val_loss-{:.6f}_lr-{:.2E}_bs-{:03d}_sz-{}_"
             suffix = layout.format(*values) + run_name + '.pth'
             ckpt_path = osp.join(CKPT_DIR, log_prefix + suffix)
-
-            for fpath in glob("checkpoints/trial-{:03d}*".format(trial_id)):
-                os.remove(fpath)
             torch.save(ckpt, ckpt_path)
-
+            ckpt_paths = glob("checkpoints/trial-{:04d}*".format(trial_id))
+            for path in list(set(ckpt_paths) - set([ckpt_path])):
+                os.remove(path)
             tqdm_epochs.write(ckpt_path)
             best_loss = val_loss
-            if args.test_code:
-                os.remove(ckpt_path)
         # Save stats to database
         stats = dict(
             trial_id=trial_id, datetime=get_datetime(), git=git, epoch=epoch,
@@ -213,16 +210,47 @@ with torch.cuda.device(args.gpu):
             loc_preds, cls_preds = net(x.unsqueeze(0))
             boxes, labels, scores = box_coder.decode(
                 loc_preds.data.squeeze().cpu(),
-                F.softmax(cls_preds.squeeze(), dim=1).data.cpu())
+                F.softmax(cls_preds.squeeze(), dim=1).data.cpu(),
+                nms_thresh=1.0, score_thresh=0.22)
             boxes = [box for i, box in enumerate(boxes) if labels[i] == cls_id]
-            for x1, y1, x2, y2 in boxes:
+            for i, (x1, y1, x2, y2) in enumerate(boxes):
                 stats['x_min'] = x1
                 stats['y_min'] = y1
                 stats['x_max'] = x2
                 stats['y_max'] = y2
+                stats['score'] = scores[i]
                 stats['timestamp'] = time()
                 save_stats(sqlite_path, stats)
         return val_loss, stats
+
+    if TRACK_BOX_EVOLUTION:
+        # This makes an awesome image but it takes too long to do it every
+        # time.
+        stats = dict(trial_id=trial_id, datetime=get_datetime(),
+                     git=git, epoch=-1)
+        cls_id = 0  # voids
+        img = Image.open("docs/20180215_190227_002190.jpg")
+        x = img.resize((IMG_SIZE, IMG_SIZE))
+        transform = transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Normalize((0.485, 0.456, 0.406),
+                                 (0.229, 0.224, 0.225))])
+        x = transform(x)
+        x = Variable(x, volatile=True).cuda()
+        loc_preds, cls_preds = net(x.unsqueeze(0))
+        boxes, labels, scores = box_coder.decode(
+            loc_preds.data.squeeze().cpu(),
+            F.softmax(cls_preds.squeeze(), dim=1).data.cpu(),
+            nms_thresh=1.0, score_thresh=0.22)
+        boxes = [box for i, box in enumerate(boxes) if labels[i] == cls_id]
+        for i, (x1, y1, x2, y2) in enumerate(boxes):
+            stats['x_min'] = x1
+            stats['y_min'] = y1
+            stats['x_max'] = x2
+            stats['y_max'] = y2
+            stats['score'] = scores[i]
+            stats['timestamp'] = time()
+            save_stats(sqlite_path, stats)
 
     log_prefix = get_log_prefix()
     tqdm_epochs = trange(start_epoch, start_epoch+NUM_EPOCHS, desc="Epoch",
@@ -241,5 +269,8 @@ with torch.cuda.device(args.gpu):
         cmd = "SELECT * FROM trials WHERE trial_id = -1"
         conn = sqlite3.connect(sqlite_path)
         print(pd.read_sql_query(cmd, conn).to_string())
-        cmd = "DELETE FROM trials WHERE trial_id = -1"
-        connect_and_execute(sqlite_path, cmd)
+        for fpath in glob("checkpoints/trial--001*"):
+            os.remove(fpath)
+        if False:
+            cmd = "DELETE FROM trials WHERE trial_id = -1"
+            connect_and_execute(sqlite_path, cmd)

@@ -8,6 +8,7 @@ The above are predictions from the first model trained. The images are from the 
 
 ## Table of Contents
 - <a href='#demo'>Demo</a>
+- <a href='#visualization'>Visualization</a>
 - <a href='#goal'>Goal</a>
 - <a href='#log'>Log</a>
     - <a href='#2018-02-15-collect-and-label-data'>2018-02-15: Collect and label data</a>
@@ -46,6 +47,10 @@ Requirements:
 - Access to the Docker image
     - Option 1: Obtain read permissions for the Docker image at matthewkleinsmith/void-detector
     - Option 2: Build the image with `docker build -t matthewkleinsmith/void-detector docker/.`
+
+# Visualization
+
+<img src="docs/trial-0008_gif_4fps.gif" width="35%">
 
 # Goal
 
@@ -149,7 +154,7 @@ Requirements:
         - **Train: 0.9091** (N: 329)
         - **Test: 0.1672** (N: 80)
         - **These results imply extreme overfitting, but the visual results show decent performance**.
-            - <img src="docs/20180215_190227_002190.jpg" width="50%">
+            - <img src="docs/20180215_190227_002190_gt_and_preds.jpg" width="50%">
             - The predictions are in red and the ground truth is in green.
             - The model detected some voids I missed.
             - When labeling the test set, I tended to cut large voids into smaller voids with sizes equal to the sizes of nearby products. I didn't do this as often when labeling the training set. This difference in ground truth is likely responsible for a large loss in precision. If so, this shows the importance of documenting changes in the labeling procedure, and shows a benefit of standarizing the labeling procedure.
@@ -246,7 +251,9 @@ Requirements:
     - [x] Final results
     - [x] num_trn, num_val, trn_name, val_name, gpu_name, arch, loss_fn, optimizer, momentum, weight_decay, voidless_included
     - [x] x_min, y_min, x_max, y_max for a pre-selected image
-- [x] Draw the evolution of the predictions on a pre-selection image: draw_box_evolution.py
+- [x] Draw the evolution of the predictions on a pre-selected image: draw_box_evolution.py
+- [x] Create a GIF to visualize
+
 # Ambitions
 
 Real-time processing on embedded device:

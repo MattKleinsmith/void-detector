@@ -115,6 +115,7 @@ def save_stats(sqlite_path, stats):
                   x_max REAL,
                   y_max REAL,
                   timestamp REAL,
+                  score REAL,
                   PRIMARY KEY (trial_id, timestamp))
               """
         connect_and_execute(sqlite_path, cmd)
@@ -131,7 +132,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     sqlite_path = "database.sqlite3"
     if args.alter:
-        cmd = "ALTER TABLE trials ADD timestamp REAL"
+        cmd = "ALTER TABLE trials ADD score REAL"
         print(cmd)
         connect_and_execute(sqlite_path, cmd)
     else:

@@ -142,14 +142,16 @@ class SSDBoxCoder:
         scores = []
         num_classes = cls_preds.size(1)
         for i in range(num_classes-1):
-            score = cls_preds[:,i+1]  # class i corresponds to (i+1) column
+            score = cls_preds[:, i+1]  # class i corresponds to (i+1) column
             mask = score > score_thresh
             if not mask.any():
                 continue
             box = box_preds[mask.nonzero().squeeze()]
             score = score[mask]
-
-            keep = box_nms(box, score, nms_thresh)
+            if nms_thresh < 1.0:
+                keep = box_nms(box, score, nms_thresh)
+            else:
+                keep = list(range(len(box)))
             boxes.append(box[keep])
             labels.append(torch.LongTensor(len(box[keep])).fill_(i))
             scores.append(score[keep])
