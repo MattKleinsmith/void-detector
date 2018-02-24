@@ -7,6 +7,14 @@ def videoid2videoname(i):
 # -----------------------------------------------------------------------------
 
 
+def get_gpu_names():
+    import subprocess
+    cmd = "nvidia-smi --query-gpu=gpu_name --format=csv"
+    gpu_names = subprocess.check_output(cmd, shell=True).splitlines()[1:]
+    gpu_names = list(map(lambda x: x.decode("utf-8"), gpu_names))
+    return gpu_names
+
+
 def git_hash():
     import shlex
     import subprocess

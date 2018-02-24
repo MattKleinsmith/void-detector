@@ -9,6 +9,15 @@ def connect_and_execute(sqlite_path, cmd, parameters=None):
             cur.execute(cmd)
 
 
+def select(sqlite_path, cmd, parameters=None):
+    conn = sqlite3.connect(sqlite_path)
+    cur = conn.cursor()
+    cur.execute(cmd, parameters) if parameters else cur.execute(cmd)
+    values = cur.fetchall()
+    conn.close()
+    return values
+
+
 def get_placeholders(num, form):
     """
     Example:
@@ -51,7 +60,8 @@ def insert_into_table(sqlite_path, table_name, key_value_pairs):
     # Warning: This cmd is vulnerable to SQL injection via
     # the table_name and col_names variables.
     col_names = key_value_pairs.keys()
-    parameters = list(key_value_pairs.values())
+    parameters = [v.__name__ if callable(v) or isinstance(v, type) else v
+                  for v in key_value_pairs.values()]
     col_name_placeholders = get_placeholders(len(key_value_pairs), "{}")
     col_name_placeholders = "({})".format(col_name_placeholders)
     parameter_placeholders = get_placeholders(len(key_value_pairs), "?")
@@ -85,11 +95,27 @@ def save_stats(sqlite_path, stats):
                   avg_prec REAL,
                   trn_loss REAL,
                   val_loss REAL,
+                  num_trn INTEGER,
+                  num_val INTEGER,
+                  trn_name TEXT,
+                  val_name TEXT,
+                  voidless_included INTEGER,
                   lr REAL,
+                  momentum REAL,
+                  weight_decay REAL,
                   batch_size INTEGER,
                   img_size INTEGER,
                   seed INTEGER,
-                  PRIMARY KEY (trial_id, datetime))
+                  arch TEXT,
+                  loss_fn TEXT,
+                  optimizer TEXT,
+                  gpu_name TEXT,
+                  x_min REAL,
+                  y_min REAL,
+                  x_max REAL,
+                  y_max REAL,
+                  timestamp REAL,
+                  PRIMARY KEY (trial_id, timestamp))
               """
         connect_and_execute(sqlite_path, cmd)
     except sqlite3.OperationalError:
@@ -105,12 +131,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     sqlite_path = "database.sqlite3"
     if args.alter:
-        cmd = "ALTER TABLE trials ADD seed INTEGER"
+        cmd = "ALTER TABLE trials ADD timestamp REAL"
+        print(cmd)
         connect_and_execute(sqlite_path, cmd)
     else:
-        stats = dict(
-            trial_id=-1,
-            datetime=-1,
-            git=-1,
-            epoch=-1)
-        save_stats(sqlite_path, stats)
+        cmd = "DELETE FROM trials WHERE trial_id = -1"
+        connect_and_execute(sqlite_path, cmd)

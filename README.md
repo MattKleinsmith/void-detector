@@ -236,16 +236,17 @@ Requirements:
 - [ ] Store the following:
     - [x] Training configuration information
     - [ ] Final results
-    - [ ] Epoch-by-epoch results
+    - [x] Epoch-by-epoch results
     - Bonus:
         - [ ] The evolution of void boxes on one or two images
         - [ ] The evolution of non-void boxes on one or two images
 
 ## 2018-02-24: Log results in a database (part 3)
-- [ ] Store the following:
+- [x] Store the following:
     - [x] Final results
-    - [ ] Epoch-by-epoch results
-
+    - [x] num_trn, num_val, trn_name, val_name, gpu_name, arch, loss_fn, optimizer, momentum, weight_decay, voidless_included
+    - [x] x_min, y_min, x_max, y_max for a pre-selected image
+- [x] Draw the evolution of the predictions on a pre-selection image: draw_box_evolution.py
 # Ambitions
 
 Real-time processing on embedded device:

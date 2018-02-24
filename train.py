@@ -3,13 +3,18 @@ import argparse
 import os
 import os.path as osp
 import random
+import sqlite3
+from time import time
 
-import torch
-import torch.optim as optim
-import torch.backends.cudnn as cudnn
-import torchvision.transforms as transforms
+from PIL import Image
 from torch.autograd import Variable
 from tqdm import tqdm, trange
+import pandas as pd
+import torch
+import torch.backends.cudnn as cudnn
+import torch.nn.functional as F
+import torch.optim as optim
+import torchvision.transforms as transforms
 
 from torchcv.models.ssd import SSDBoxCoder
 from torchcv.datasets import ListDataset
@@ -19,7 +24,7 @@ from torchcv.transforms import (resize, random_flip, random_paste, random_crop,
 from torchcv.models.void_models import FPNSSD512_2
 from torchcv.loss.void_losses import SSDLoss
 from utils import (set_seed, get_log_prefix, videoid2videoname, git_hash,
-                   get_datetime)
+                   get_datetime, get_gpu_names)
 from utils.sql import get_trial_id, save_stats, connect_and_execute
 from evaluate import evaluate
 
@@ -45,22 +50,29 @@ IMG_SIZE = 512
 DEBUG = False  # Turn off shuffling and multiprocessing
 NUM_WORKERS = 8 if not DEBUG else 0
 SEED = 123
+TRACK_BOX_EVOLUTION = True
 
 IMAGE_DIR = "../../data/voids"
 LABEL_DIR = "../void-detector/labels"
 CKPT_DIR = "checkpoints"
+ARCH = FPNSSD512_2
+ARCH_KWARGS = {'weights_path': 'checkpoints/fpnssd512_20_trained.pth'}
 
 print("Run name:", RUN_NAME)
 set_seed(SEED)
 img_dir = osp.join(IMAGE_DIR, TRN_VIDEO_ID)
 voids = "_voids" if not args.include_voidless else ''
-list_file = osp.join(LABEL_DIR, TRN_VIDEO_ID + voids + '.txt')
-print("Training set:", list_file)
+trn_labels_fpath = osp.join(LABEL_DIR, TRN_VIDEO_ID + voids + '.txt')
+print("Training set:", trn_labels_fpath)
 img_dir_test = osp.join(IMAGE_DIR, VAL_VIDEO_ID)
-list_file_test = osp.join(LABEL_DIR, VAL_VIDEO_ID + voids + '.txt')
-print("Validation set:", list_file_test)
+val_labels_fpath = osp.join(LABEL_DIR, VAL_VIDEO_ID + voids + '.txt')
+print("Validation set:", val_labels_fpath)
 shuffle = not DEBUG
 os.makedirs(CKPT_DIR, exist_ok=True)
+gpu_name = get_gpu_names()[args.gpu]
+trn_name = osp.basename(trn_labels_fpath)
+val_name = osp.basename(val_labels_fpath)
+arch_name = ARCH.__name__
 
 sqlite_path = "database.sqlite3"
 trial_id = get_trial_id(sqlite_path) if not args.test_code else -1
@@ -70,16 +82,17 @@ print("Trial ID:", trial_id)
 with torch.cuda.device(args.gpu):
     # Model
     print('==> Building model..')
-
-    net = FPNSSD512_2(weights_path='checkpoints/fpnssd512_20_trained.pth')
+    net = ARCH(**ARCH_KWARGS)
     net.cuda()
     cudnn.benchmark = True  # WARNING: Don't use if using images w/ diff shapes  # TODO: Check for this condition automatically
     best_loss = float('inf')  # best test loss
     start_epoch = 0  # start from epoch 0 or last epoch
     criterion = SSDLoss()
     lr = 1e-3
-    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=0.9,
-                          weight_decay=1e-4)
+    momentum = 0.9
+    weight_decay = 1e-4
+    optimizer = optim.SGD(net.parameters(), lr=lr, momentum=momentum,
+                          weight_decay=weight_decay)
 
     # Dataset
     print('==> Preparing dataset..')
@@ -110,13 +123,10 @@ with torch.cuda.device(args.gpu):
         boxes, labels = box_coder.encode(boxes, labels)
         return img, boxes, labels
 
-    trn_ds = ListDataset(root=img_dir, list_file=list_file,
-                         transform=trn_transform)
-    val_ds = ListDataset(root=img_dir_test, list_file=list_file_test,
-                         transform=val_transform)
-    if args.test_code:
-        trn_ds.num_imgs = 10
-        val_ds.num_imgs = 10
+    trn_ds = ListDataset(root=img_dir, list_file=trn_labels_fpath,
+                         transform=trn_transform, test_code=args.test_code)
+    val_ds = ListDataset(root=img_dir_test, list_file=val_labels_fpath,
+                         transform=val_transform, test_code=args.test_code)
     trn_dl = torch.utils.data.DataLoader(trn_ds, batch_size=BATCH_SIZE,
                                          shuffle=shuffle,
                                          num_workers=NUM_WORKERS)
@@ -161,10 +171,10 @@ with torch.cuda.device(args.gpu):
                 'epoch': epoch,
                 'state_dict': net.state_dict(),
                 'optim_state_dict': optimizer.state_dict()}
-
-            values = [trial_id, epoch, trn_loss, val_loss, lr, BATCH_SIZE,
+            log_prefix = "trial-{:04d}_".format(trial_id) + log_prefix
+            values = [epoch, trn_loss, val_loss, lr, BATCH_SIZE,
                       IMG_SIZE]
-            layout = "_trial-{:03d}_epoch-{:03d}_trn_loss-{:.6f}"
+            layout = "_epoch-{:03d}_trn_loss-{:.6f}"
             layout += "_val_loss-{:.6f}_lr-{:.2E}_bs-{:03d}_sz-{}_"
             suffix = layout.format(*values) + run_name + '.pth'
             ckpt_path = osp.join(CKPT_DIR, log_prefix + suffix)
@@ -179,39 +189,57 @@ with torch.cuda.device(args.gpu):
                 os.remove(ckpt_path)
         # Save stats to database
         stats = dict(
-            trial_id=trial_id,
-            datetime=get_datetime(),
-            git=git,
-            epoch=epoch,
-            trn_loss=trn_loss,
-            val_loss=val_loss,
-            lr=lr,
-            batch_size=BATCH_SIZE,
-            img_size=IMG_SIZE,
-            seed=SEED)
+            trial_id=trial_id, datetime=get_datetime(), git=git, epoch=epoch,
+            trn_loss=trn_loss, val_loss=val_loss,
+            num_trn=len(trn_ds), num_val=len(val_ds),
+            trn_name=trn_name, val_name=val_name,
+            voidless_included=args.include_voidless,
+            arch=ARCH, loss_fn=criterion.__class__,
+            optimizer=optimizer.__class__,
+            lr=lr, batch_size=BATCH_SIZE, img_size=IMG_SIZE,
+            momentum=momentum, weight_decay=weight_decay, seed=SEED,
+            gpu_name=gpu_name, timestamp=time())
         save_stats(sqlite_path, stats)
-        return val_loss
+        if TRACK_BOX_EVOLUTION:
+            cls_id = 0  # voids
+            img = Image.open("docs/20180215_190227_002190.jpg")
+            x = img.resize((IMG_SIZE, IMG_SIZE))
+            transform = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Normalize((0.485, 0.456, 0.406),
+                                     (0.229, 0.224, 0.225))])
+            x = transform(x)
+            x = Variable(x, volatile=True).cuda()
+            loc_preds, cls_preds = net(x.unsqueeze(0))
+            boxes, labels, scores = box_coder.decode(
+                loc_preds.data.squeeze().cpu(),
+                F.softmax(cls_preds.squeeze(), dim=1).data.cpu())
+            boxes = [box for i, box in enumerate(boxes) if labels[i] == cls_id]
+            for x1, y1, x2, y2 in boxes:
+                stats['x_min'] = x1
+                stats['y_min'] = y1
+                stats['x_max'] = x2
+                stats['y_max'] = y2
+                stats['timestamp'] = time()
+                save_stats(sqlite_path, stats)
+        return val_loss, stats
+
     log_prefix = get_log_prefix()
     tqdm_epochs = trange(start_epoch, start_epoch+NUM_EPOCHS, desc="Epoch",
                          ncols=0)
     for epoch in tqdm_epochs:
         trn_loss = train(epoch)
-        val_loss = validate(epoch, log_prefix, RUN_NAME, tqdm_epochs, trn_loss)
-    avg_prec = evaluate(net, img_dir, list_file, IMG_SIZE,
+        val_loss, stats = validate(epoch, log_prefix, RUN_NAME, tqdm_epochs,
+                                   trn_loss)
+    avg_prec = evaluate(net, img_dir, trn_labels_fpath, IMG_SIZE,
                         args.test_code)['ap'][0]
-    stats = dict(
-        trial_id=trial_id,
-        datetime=get_datetime(),
-        git=git,
-        epoch=epoch,
-        avg_prec=avg_prec,
-        trn_loss=trn_loss,
-        val_loss=val_loss,
-        lr=lr,
-        batch_size=BATCH_SIZE,
-        img_size=IMG_SIZE,
-        seed=SEED)
+    print("Average precision, class 0:", avg_prec)
+    stats['avg_prec'] = avg_prec
+    stats['timestamp'] = time()
     save_stats(sqlite_path, stats)
-    if args.test_code and False:
+    if args.test_code:
+        cmd = "SELECT * FROM trials WHERE trial_id = -1"
+        conn = sqlite3.connect(sqlite_path)
+        print(pd.read_sql_query(cmd, conn).to_string())
         cmd = "DELETE FROM trials WHERE trial_id = -1"
         connect_and_execute(sqlite_path, cmd)

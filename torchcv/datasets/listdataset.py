@@ -18,7 +18,7 @@ class ListDataset(data.Dataset):
       a.jpg xmin ymin xmax ymax label xmin ymin xmax ymax label ...
     PASCAL VOC annotations use (1, 1) as the top-left corner, not (0, 0).
     '''
-    def __init__(self, root, list_file, transform=None):
+    def __init__(self, root, list_file, transform=None, test_code=False):
         '''
         Args:
           root: (str) ditectory to images.
@@ -41,6 +41,8 @@ class ListDataset(data.Dataset):
 
         with open(list_file) as f:
             lines = f.readlines()
+            if test_code:
+                lines = lines[:10]
             self.num_imgs = len(lines)
 
         for line in lines:

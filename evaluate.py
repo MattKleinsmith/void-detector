@@ -59,7 +59,6 @@ def evaluate(net, img_dir, list_file, img_size, test_code):
 
     ap_map_dict = voc_eval(pred_boxes, pred_labels, pred_scores, gt_boxes,
                            gt_labels, iou_thresh=0.5, use_07_metric=True)
-    print(ap_map_dict)
     return ap_map_dict
 
 
