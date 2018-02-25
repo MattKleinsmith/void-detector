@@ -83,7 +83,9 @@ if __name__ == '__main__':
 
     print('Loading model..')
     net = FPNSSD512_2()
-    net.load_state_dict(torch.load(args.checkpoint)['net'])
-
+    try:
+        net.load_state_dict(torch.load(args.checkpoint)['state_dict'])
+    except KeyError:
+        net.load_state_dict(torch.load(args.checkpoint)['net'])
     with torch.cuda.device(args.gpu):
         evaluate(net, img_dir, list_file, IMG_SIZE, args.test_code)
